@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "title": "Dashboard Overview",
+    "href": "/",
+    "category": "Pages"
+  },
+  {
+    "id": "2",
+    "title": "Stores List",
+    "href": "/stores",
+    "category": "Stores"
+  },
+  {
+    "id": "3",
+    "title": "User Management",
+    "href": "/users",
+    "category": "Users"
+  },
+  {
+    "id": "4",
+    "title": "Settings Home",
+    "href": "/settings",
+    "category": "Settings"
+  },
+  {
+    "id": "5",
+    "title": "Documentation",
+    "href": "/docs",
+    "category": "Documentation"
+  },
+  {
+    "id": "6",
+    "title": "Run Command",
+    "href": "/commands",
+    "category": "Commands"
+  }
+]

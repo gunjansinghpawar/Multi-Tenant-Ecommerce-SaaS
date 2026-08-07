@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "@commercex/ui/globals.css";
+
+@layer base {
+  /* Global Accessible Focus States */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+  
+  :focus-visible {
+    outline: 2px solid #2563eb; /* High contrast blue */
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+    border-radius: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+@layer utilities {
+  /* Hide scrollbar completely */
+  .hide-scrollbar::-webkit-scrollbar,
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar,
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Explicit custom-scrollbar class (for overriding no-scrollbar where needed) */
+  .custom-scrollbar::-webkit-scrollbar {
+    display: block;
+  }
+  .custom-scrollbar {
+    -ms-overflow-style: auto;
+    scrollbar-width: thin;
+  }
+}
+
+/* ── Global Custom Scrollbar ────────────────────────────────── */
+/* Applied to ALL scrollable elements for a consistent, premium feel */
+
+/* Webkit (Chrome, Edge, Safari) */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(0 0% 70% / 0.4);
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(0 0% 60% / 0.6);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Dark mode */
+.dark *::-webkit-scrollbar-thumb {
+  background-color: hsl(0 0% 35% / 0.5);
+}
+
+.dark *::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(0 0% 50% / 0.6);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(0 0% 70% / 0.4) transparent;
+}
+
+.dark * {
+  scrollbar-color: hsl(0 0% 35% / 0.5) transparent;
+}
+

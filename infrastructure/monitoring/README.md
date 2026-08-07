@@ -1,0 +1,1 @@
+# Monitoring configurations (Sentry / OpenTelemetry)

@@ -1,0 +1,17 @@
+{
+  "name": "@commercex/builder-store",
+  "version": "0.1.0",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint \"src/**/*.ts*\""
+  },
+  "dependencies": {
+    "@commercex/builder-core": "*",
+    "zustand": "^4.5.2",
+    "zundo": "^2.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  }
+}

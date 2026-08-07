@@ -1,0 +1,272 @@
+// CommerceX Enterprise Multi-Tenant Prisma Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// --- Enums ---
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  PENDING
+  DELETED
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+// --- Models ---
+
+model Tenant {
+  id           String       @id @default(uuid())
+  name         String
+  slug         String       @unique
+  customDomain String?      @unique
+  status       TenantStatus @default(ACTIVE)
+  ownerId      String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  deletedAt    DateTime?
+
+  // Relations
+  users       User[]
+  settings    TenantSettings?
+  theme       ThemeAssignment?
+  invitations Invitation[]
+  auditLogs   AuditLog[]
+  sessions    Session[]
+
+  @@index([slug])
+  @@index([status])
+  @@index([deletedAt])
+}
+
+model TenantSettings {
+  id                 String   @id @default(uuid())
+  tenantId           String   @unique
+  // General & Business
+  storeName          String?
+  companyName        String?
+  supportEmail       String?
+  phone              String?
+  // Address
+  address            String?
+  city               String?
+  state              String?
+  zipCode            String?
+  country            String?
+  // Localization
+  currency           String   @default("USD")
+  timezone           String   @default("UTC")
+  locale             String   @default("en-US")
+  // Branding
+  brandingLogoUrl    String?
+  brandingFaviconUrl String?
+  primaryColor       String?  @default("#000000")
+  accentColor        String?  @default("#3b82f6")
+  
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model ThemeAssignment {
+  id        String   @id @default(uuid())
+  tenantId  String   @unique
+  themeKey  String   @default("default")
+  customCss String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  pages  Page[]
+}
+
+model User {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  emailVerified Boolean    @default(false)
+  name          String
+  avatarUrl     String?
+  status        UserStatus @default(ACTIVE)
+  tenantId      String? // Nullable for Super Admin
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Junctions & Relations
+  roles          UserRole[]
+  sessions       Session[]
+  sentInvitations Invitation[] @relation("InvitedBy")
+  auditLogs      AuditLog[]
+
+  @@index([email])
+  @@index([tenantId])
+  @@index([status])
+  @@index([deletedAt])
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       UserRole[]
+  permissions RolePermission[]
+  invitations Invitation[]
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  name        String
+  description String?
+  category    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  roles RolePermission[]
+
+  @@index([category])
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  tenantId  String?
+  createdAt DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([tenantId])
+}
+
+model Invitation {
+  id          String    @id @default(uuid())
+  email       String
+  token       String    @unique
+  roleId      String
+  roleName    String
+  tenantId    String
+  invitedById String
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  role      Role   @relation(fields: [roleId], references: [id])
+  tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invitedBy User   @relation("InvitedBy", fields: [invitedById], references: [id])
+
+  @@index([token])
+  @@index([tenantId])
+  @@index([email])
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  action       String
+  actorId      String
+  actorEmail   String
+  tenantId     String?
+  resourceType String
+  resourceId   String?
+  details      Json?
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  actor  User    @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// --- Builder Models ---
+
+enum PageStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Page {
+  id          String   @id @default(cuid())
+  tenantId    String
+  title       String
+  slug        String
+  status      PageStatus @default(DRAFT)
+  
+  content     Json     @default("{}")
+  
+  themeId     String?
+  theme       ThemeAssignment? @relation(fields: [themeId], references: [id])
+  
+  revisions   PageRevision[]
+  
+  @@index([tenantId, slug])
+}
+
+model PageRevision {
+  id          String   @id @default(cuid())
+  pageId      String
+  content     Json
+  createdBy   String
+  createdAt   DateTime @default(now())
+  
+  page        Page     @relation(fields: [pageId], references: [id])
+}
+
+model GlobalBlock {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  content     Json
+}

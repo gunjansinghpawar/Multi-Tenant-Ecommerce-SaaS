@@ -1,0 +1,31 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@commercex/types": ["./packages/types/src/index.ts"],
+      "@commercex/types/*": ["./packages/types/src/*"],
+      "@commercex/config": ["./packages/config/src/index.ts"],
+      "@commercex/config/*": ["./packages/config/src/*"],
+      "@commercex/utils": ["./packages/utils/src/index.ts"],
+      "@commercex/utils/*": ["./packages/utils/src/*"],
+      "@commercex/logger": ["./packages/logger/src/index.ts"],
+      "@commercex/logger/*": ["./packages/logger/src/*"],
+      "@commercex/validation": ["./packages/validation/src/index.ts"],
+      "@commercex/validation/*": ["./packages/validation/src/*"],
+      "@commercex/permissions": ["./packages/permissions/src/index.ts"],
+      "@commercex/permissions/*": ["./packages/permissions/src/*"],
+      "@commercex/database": ["./packages/database/src/index.ts"],
+      "@commercex/database/*": ["./packages/database/src/*"],
+      "@commercex/auth": ["./packages/auth/src/index.ts"],
+      "@commercex/auth/*": ["./packages/auth/src/*"],
+      "@commercex/services": ["./packages/services/src/index.ts"],
+      "@commercex/services/*": ["./packages/services/src/*"],
+      "@commercex/notifications": ["./packages/notifications/src/index.ts"],
+      "@commercex/notifications/*": ["./packages/notifications/src/*"],
+      "@commercex/ui": ["./packages/ui/src/index.ts"],
+      "@commercex/ui/*": ["./packages/ui/src/*"]
+    }
+  },
+  "include": ["apps/**/*", "packages/**/*"]
+}
