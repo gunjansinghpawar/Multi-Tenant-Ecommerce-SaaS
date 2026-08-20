@@ -10,10 +10,22 @@
     */
     --background: 0 0% 100%;
     --foreground: 220 10% 10%;
-    
+
+    --neutral-50: 210 40% 98%;
+    --neutral-100: 210 40% 96%;
+    --neutral-200: 214 32% 91%;
+    --neutral-300: 213 27% 84%;
+    --neutral-400: 215 16% 47%;
+    --neutral-500: 215 20% 65%;
+    --neutral-600: 215 19% 35%;
+    --neutral-700: 215 25% 27%;
+    --neutral-800: 217 33% 17%;
+    --neutral-900: 222 47% 11%;
+    --neutral-950: 229 84% 5%;
+
     --card: 0 0% 100%;
     --card-foreground: 220 10% 10%;
-    
+
     --popover: 0 0% 100%;
     --popover-foreground: 220 10% 10%;
 
@@ -29,35 +41,40 @@
     */
     --secondary: 220 14% 96%;
     --secondary-foreground: 220 10% 10%;
-    
+
     --muted: 220 14% 96%;
     --muted-foreground: 220 8% 46%;
-    
+
     --accent: 220 14% 96%;
     --accent-foreground: 220 10% 10%;
 
     /* 
       Semantic Colors (Danger, Success, Warning, Info)
     */
-    --destructive: 0 84% 60%; /* Red: #EF4444 */
+    --destructive: 0 84% 60%;
+    /* Red: #EF4444 */
     --destructive-foreground: 0 0% 100%;
-    
-    --success: 160 84% 39%; /* Green: #10B981 */
+
+    --success: 160 84% 39%;
+    /* Green: #10B981 */
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%; /* Yellow: #F59E0B */
+    --warning: 38 92% 50%;
+    /* Yellow: #F59E0B */
     --warning-foreground: 0 0% 100%;
-    
-    --info: 244 76% 59%; /* Indigo/Links: #4F46E5 */
+
+    --info: 244 76% 59%;
+    /* Indigo/Links: #4F46E5 */
     --info-foreground: 0 0% 100%;
 
     /* Borders & Inputs */
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 216 100% 50%; /* Blue Ring */
-    
+    --ring: 216 100% 50%;
+    /* Blue Ring */
+
     --radius: 0.5rem;
-    
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 216 100% 50%;
@@ -74,41 +91,54 @@
     */
     --background: 0 0% 6%;
     --foreground: 0 0% 98%;
-    
+
+    --neutral-50: 229 84% 5%;
+    --neutral-100: 222 47% 11%;
+    --neutral-200: 217 33% 17%;
+    --neutral-300: 215 25% 27%;
+    --neutral-400: 215 19% 35%;
+    --neutral-500: 215 20% 65%;
+    --neutral-600: 215 16% 47%;
+    --neutral-700: 213 27% 84%;
+    --neutral-800: 214 32% 91%;
+    --neutral-900: 210 40% 96%;
+    --neutral-950: 210 40% 98%;
+
     --card: 0 0% 9%;
     --card-foreground: 0 0% 98%;
-    
+
     --popover: 0 0% 9%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 216 100% 60%; /* Slightly lighter blue in dark mode */
+    --primary: 216 100% 60%;
+    /* Slightly lighter blue in dark mode */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 98%;
-    
+
     --muted: 0 0% 15%;
     --muted-foreground: 0 0% 65%;
-    
+
     --accent: 0 0% 15%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 40%;
     --destructive-foreground: 0 0% 98%;
-    
+
     --success: 160 84% 39%;
     --success-foreground: 0 0% 98%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 98%;
-    
+
     --info: 244 76% 65%;
     --info-foreground: 0 0% 98%;
 
     --border: 0 0% 15%;
     --input: 0 0% 15%;
     --ring: 216 100% 60%;
-    
+
     --sidebar-background: 0 0% 6%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 216 100% 60%;
@@ -124,6 +154,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;

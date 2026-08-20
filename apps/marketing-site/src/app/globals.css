@@ -3,3 +3,76 @@
 @tailwind utilities;
 
 @import "@commercex/ui/globals.css";
+
+@layer base {
+  :root {
+    /* --- LIGHT MODE: Clean, Crisp, Professional --- */
+    --background: 210 20% 98%; /* #f8f9fa - Very soft off-white */
+    --foreground: 224 71% 4%;  /* #030712 - Near black */
+
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+
+    /* Primary: Elegant Royal Blue / Indigo */
+    --primary: 226 100% 55%; /* #1a56ff */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 71% 4%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8% 46%;
+
+    --accent: 220 14% 96%;
+    --accent-foreground: 224 71% 4%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 226 100% 55%;
+
+    --radius: 0.75rem; /* Slightly rounder, friendlier radius */
+  }
+
+  .dark {
+    /* --- DARK MODE: Unique, Elegant, Obsidian/Twilight --- */
+    /* Not just pure black, but a rich, deep twilight #0B0914 */
+    --background: 251 38% 6%;
+    --foreground: 210 40% 98%;
+
+    /* Cards are slightly lighter #13111C */
+    --card: 251 24% 9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 251 24% 9%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Primary: Vibrant Indigo/Purple for dark mode pop */
+    --primary: 239 84% 67%; /* #6366f1 */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 251 24% 15%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 251 24% 15%;
+    --muted-foreground: 251 10% 65%;
+
+    --accent: 239 84% 67%;
+    --accent-foreground: 210 40% 98%;
+
+    --border: 251 24% 15%;
+    --input: 251 24% 15%;
+    --ring: 239 84% 67%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}

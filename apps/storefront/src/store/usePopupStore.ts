@@ -7,6 +7,9 @@ export type PopupType =
   | 'ENGAGEMENT' 
   | 'GATEKEEPER' 
   | 'QUICK_VIEW'
+  | 'PRODUCT_ACTION'
+  | 'CART_ACTION'
+  | 'SHARE'
   | null;
 
 export interface PopupData {
@@ -20,7 +23,10 @@ export interface PopupData {
   // Specific data payloads
   engagementType?: 'newsletter' | 'exit-intent' | 'abandoned-cart';
   gatekeeperType?: 'age' | 'cookie';
+  productActionType?: 'quick-add' | 'size-guide' | 'stock-alert' | 'notify-me' | 'back-in-stock' | 'product-preview';
+  cartActionType?: 'shipping-calculator' | 'coupon' | 'gift-card';
   productId?: string;
+  shareUrl?: string;
   preventClose?: boolean;
 }
 

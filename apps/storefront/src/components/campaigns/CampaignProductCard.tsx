@@ -1,6 +1,7 @@
 'use client';
-
 import { ShoppingCart } from 'lucide-react';
+import { useAnalytics } from '../../hooks/use-analytics';
+import { useCartStore } from '../../store/use-cart-store';
 
 interface CampaignProductCardProps {
   product: {
@@ -13,8 +14,10 @@ interface CampaignProductCardProps {
   };
   theme?: 'dark' | 'light' | 'neon' | 'gold';
 }
-
 export function CampaignProductCard({ product, theme = 'dark' }: CampaignProductCardProps) {
+  const { track } = useAnalytics();
+  const { addItem } = useCartStore();
+
   const discountPercent = Math.round(((product.originalPrice - product.salePrice) / product.originalPrice) * 100);
 
   const themeClasses = {
@@ -76,7 +79,20 @@ export function CampaignProductCard({ product, theme = 'dark' }: CampaignProduct
           </div>
         </div>
 
-        <button className={`w-full py-3 px-4 rounded-xl font-bold flex items-center justify-center transition-colors ${buttonTheme[theme]}`}>
+        <button 
+          onClick={() => {
+            track('promotion_click', { product_id: product.id, campaign: theme });
+            addItem({
+              id: crypto.randomUUID(),
+              productId: product.id,
+              name: product.name,
+              price: product.salePrice,
+              quantity: 1,
+              image: product.image,
+            });
+          }}
+          className={`w-full py-3 px-4 rounded-xl font-bold flex items-center justify-center transition-colors ${buttonTheme[theme]}`}
+        >
           <ShoppingCart className="w-5 h-5 mr-2" />
           Add to Cart
         </button>

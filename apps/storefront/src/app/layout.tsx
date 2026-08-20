@@ -73,10 +73,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <PageTransition>{children}</PageTransition>
           </main>
           <Footer />
-          
+
           {/* Overlays */}
           <ClientOverlays />
-          
+
           <Toaster />
         </ThemeProvider>
       </body>

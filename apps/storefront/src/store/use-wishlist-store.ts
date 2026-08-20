@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { useCartStore } from './use-cart-store';
+import { trackEvent } from '../lib/analytics';
 
 export interface WishlistItem {
   productId: string;
@@ -31,14 +32,21 @@ export const useWishlistStore = create<WishlistState>()(
           if (state.items.find((i) => i.productId === item.productId)) {
             return state; // Already exists
           }
+          trackEvent('wishlist_add', { item });
           return { items: [...state.items, item] };
         });
       },
       
       removeItem: (productId) => {
-        set((state) => ({
-          items: state.items.filter((i) => i.productId !== productId)
-        }));
+        set((state) => {
+          const itemToRemove = state.items.find((i) => i.productId === productId);
+          if (itemToRemove) {
+            trackEvent('wishlist_remove', { item: itemToRemove });
+          }
+          return {
+            items: state.items.filter((i) => i.productId !== productId)
+          };
+        });
       },
       
       clearWishlist: () => {

@@ -4,10 +4,12 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@commercex/ui';
 import { useCheckoutStore } from '../../store/use-checkout-store';
+import { useAnalytics } from '../../hooks/use-analytics';
 
 export function OrderReview() {
   const router = useRouter();
   const { termsAccepted, setTermsAccepted, setStep } = useCheckoutStore();
+  const { track } = useAnalytics();
 
   const handlePlaceOrder = () => {
     if (!termsAccepted) return;
@@ -17,8 +19,11 @@ export function OrderReview() {
       // randomly fail 10% of the time to demonstrate the failed state
       const isSuccess = Math.random() > 0.1;
       if (isSuccess) {
+        track('payment_success');
+        track('order_completed');
         router.push('/checkout/success');
       } else {
+        track('payment_failed');
         router.push('/checkout/failed');
       }
     }, 1500);

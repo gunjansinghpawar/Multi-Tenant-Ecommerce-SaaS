@@ -1,4 +1,5 @@
 import { supabase as defaultSupabase } from '@commercex/auth';
+import { prisma } from '@commercex/database';
 
 export class AuthService {
   private client: any;
@@ -30,6 +31,11 @@ export class AuthService {
   async login(data: { email: string; password: string }, reqMetadata?: any) {
     console.log('Logging in user with Supabase:', data.email);
     
+    // Attempt to find the user in our Prisma database by email
+    const user = await prisma.user.findUnique({
+      where: { email: data.email }
+    });
+    
     // Supabase handles device tracking internally if configured, 
     // or we can pass reqMetadata to our own tracking tables later.
     const { data: authData, error } = await this.client.auth.signInWithPassword({
@@ -38,8 +44,29 @@ export class AuthService {
     });
 
     if (error) {
+      // Log failed attempt
+      await prisma.loginAttempt.create({
+        data: {
+          userId: user ? user.id : null,
+          email: data.email,
+          ipAddress: reqMetadata?.ipAddress || null,
+          userAgent: reqMetadata?.userAgent || null,
+          status: 'FAILED',
+        }
+      });
       throw new Error(`Login failed: ${error.message}`);
     }
+
+    // Log successful attempt
+    await prisma.loginAttempt.create({
+      data: {
+        userId: user ? user.id : null,
+        email: data.email,
+        ipAddress: reqMetadata?.ipAddress || null,
+        userAgent: reqMetadata?.userAgent || null,
+        status: 'SUCCESS',
+      }
+    });
 
     return authData;
   }

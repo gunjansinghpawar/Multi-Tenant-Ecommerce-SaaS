@@ -8,6 +8,7 @@ import { ShippingMethodOptions } from './ShippingMethodOptions';
 import { PaymentMethodOptions } from './PaymentMethodOptions';
 import { OrderReview } from './OrderReview';
 import { Check } from 'lucide-react';
+import { useAnalytics } from '../../hooks/use-analytics';
 
 const STEPS: { id: CheckoutStep; title: string }[] = [
   { id: 'auth', title: 'Authentication' },
@@ -20,6 +21,11 @@ const STEPS: { id: CheckoutStep; title: string }[] = [
 
 export function CheckoutWizard() {
   const { currentStep, setStep, billingSameAsShipping } = useCheckoutStore();
+  const { track } = useAnalytics();
+
+  React.useEffect(() => {
+    track('checkout_started');
+  }, [track]);
 
   const getStepIndex = (step: CheckoutStep) => STEPS.findIndex(s => s.id === step);
   const currentIndex = getStepIndex(currentStep);

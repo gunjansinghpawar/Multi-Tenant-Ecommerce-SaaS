@@ -9,6 +9,7 @@ import { useUiStore } from '../../store/use-ui-store';
 import { useVoiceSearch } from '../../hooks/use-voice-search';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useAnalytics } from '../../hooks/use-analytics';
 
 // Mock predictive data
 const TRENDING_SEARCHES = ['Wireless Earbuds', 'Running Shoes Men', 'Smart Watches', 'Office Chairs'];
@@ -57,10 +58,13 @@ export function SearchModal() {
     localStorage.removeItem('commercex_recent_searches');
   };
 
+  const { track } = useAnalytics();
+
   const handleSearch = (searchTerm: string = query) => {
     if (!searchTerm.trim()) return;
     saveRecentSearch(searchTerm.trim());
     setSearchModalOpen(false);
+    track('search', { query: searchTerm.trim() });
     router.push(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
   };
 

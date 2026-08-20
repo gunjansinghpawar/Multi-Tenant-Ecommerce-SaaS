@@ -5,13 +5,15 @@
 @import "@commercex/ui/globals.css";
 
 @layer base {
+
   /* Global Accessible Focus States */
   :focus:not(:focus-visible) {
     outline: none;
   }
-  
+
   :focus-visible {
-    outline: 2px solid #2563eb; /* High contrast blue */
+    outline: 2px solid #2563eb;
+    /* High contrast blue */
     outline-offset: 2px;
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
     border-radius: 2px;
@@ -26,12 +28,15 @@
     scroll-behavior: auto !important;
   }
 }
+
 @layer utilities {
+
   /* Hide scrollbar completely */
   .hide-scrollbar::-webkit-scrollbar,
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .hide-scrollbar,
   .no-scrollbar {
     -ms-overflow-style: none;
@@ -42,6 +47,7 @@
   .custom-scrollbar::-webkit-scrollbar {
     display: block;
   }
+
   .custom-scrollbar {
     -ms-overflow-style: auto;
     scrollbar-width: thin;
@@ -93,4 +99,3 @@
 .dark * {
   scrollbar-color: hsl(0 0% 35% / 0.5) transparent;
 }
-

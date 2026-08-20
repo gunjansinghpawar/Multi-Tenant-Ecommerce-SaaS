@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type AuthView = 'login' | 'register' | 'forgot_password' | 'magic_link' | 'otp';
+export type AuthView = 'login' | 'register' | 'forgot_password' | 'reset_password' | 'magic_link' | 'otp';
 
 interface UiState {
   isMobileMenuOpen: boolean;

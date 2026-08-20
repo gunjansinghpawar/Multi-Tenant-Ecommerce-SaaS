@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@commercex/ui';
 import { cn } from '@commercex/utils';
+import { useAnalytics } from '../../hooks/use-analytics';
 
 interface PromoBannerProps {
   title: string;
@@ -26,6 +27,7 @@ export function PromoBanner({
   align = 'left',
   className
 }: PromoBannerProps) {
+  const { track } = useAnalytics();
   return (
     <section className="py-16 md:py-24 container mx-auto px-4 sm:px-6 lg:px-8">
       <div className={cn("relative rounded-3xl overflow-hidden bg-muted min-h-[400px] flex items-center", className)}>
@@ -48,7 +50,7 @@ export function PromoBanner({
             <p className="text-lg md:text-xl text-white/90 mb-8">{description}</p>
           )}
           <Button size="lg" variant="default" className="rounded-full" asChild>
-            <Link href={ctaLink}>
+            <Link href={ctaLink} onClick={() => track('banner_click', { title, ctaLink })}>
               {ctaText} <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { trackEvent } from '../lib/analytics';
 
 export interface CartItem {
   id: string;
@@ -52,6 +53,8 @@ export const useCartStore = create<CartState>()(
             newItems = [...state.items, item];
           }
 
+          trackEvent('add_to_cart', { item });
+
           return {
             items: newItems,
             cartCount: newItems.reduce((total, i) => total + i.quantity, 0),
@@ -62,6 +65,10 @@ export const useCartStore = create<CartState>()(
       },
       removeItem: (id) => {
         set((state) => {
+          const itemToRemove = state.items.find((i) => i.id === id);
+          if (itemToRemove) {
+            trackEvent('remove_from_cart', { item: itemToRemove });
+          }
           const newItems = state.items.filter((i) => i.id !== id);
           return {
             items: newItems,

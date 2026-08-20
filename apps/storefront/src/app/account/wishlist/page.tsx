@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Heart, Share2, Copy, Trash2, MoreVertical, Plus, Edit2 } from 'lucide-react';
+import { Heart, Share2, Copy, Trash2, MoreVertical, Plus, Edit2, X } from 'lucide-react';
 import Link from 'next/link';
 
 interface WishlistItem {
@@ -37,6 +37,33 @@ export default function WishlistPage() {
   ]);
   
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingList, setEditingList] = useState<Wishlist | null>(null);
+  const [listName, setListName] = useState('');
+
+  const openCreateModal = () => {
+    setEditingList(null);
+    setListName('');
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (list: Wishlist) => {
+    setEditingList(list);
+    setListName(list.name);
+    setIsModalOpen(true);
+    setActiveMenuId(null);
+  };
+
+  const saveList = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingList) {
+      setLists(lists.map(l => l.id === editingList.id ? { ...l, name: listName } : l));
+    } else {
+      setLists([...lists, { id: Date.now().toString(), name: listName, items: [] }]);
+    }
+    setIsModalOpen(false);
+  };
 
   const duplicateList = (list: Wishlist) => {
     const newList = {
@@ -50,7 +77,9 @@ export default function WishlistPage() {
   };
 
   const deleteList = (listId: string) => {
-    setLists(lists.filter(l => l.id !== listId));
+    if (confirm('Are you sure you want to delete this wishlist?')) {
+      setLists(lists.filter(l => l.id !== listId));
+    }
     setActiveMenuId(null);
   };
 
@@ -76,7 +105,7 @@ export default function WishlistPage() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">My Wishlists</h1>
           <p className="text-gray-500">Manage and share your saved items.</p>
         </div>
-        <button className="flex items-center px-4 py-2 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg hover:bg-gray-900 transition-colors">
+        <button onClick={openCreateModal} className="flex items-center px-4 py-2 bg-black dark:bg-white text-white dark:text-black font-bold rounded-lg hover:bg-gray-900 transition-colors">
           <Plus className="w-4 h-4 mr-2" /> Create List
         </button>
       </div>
@@ -85,7 +114,6 @@ export default function WishlistPage() {
         {lists.map(list => (
           <div key={list.id} className="bg-white dark:bg-gray-900 rounded-3xl p-6 sm:p-8 border border-gray-100 dark:border-gray-800 shadow-sm relative">
             
-            {/* List Header & Actions */}
             <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100 dark:border-gray-800">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                 <Heart className="w-5 h-5 mr-3 text-red-500 fill-red-500" />
@@ -100,10 +128,9 @@ export default function WishlistPage() {
                   <MoreVertical className="w-5 h-5 text-gray-500" />
                 </button>
 
-                {/* Dropdown Menu */}
                 {activeMenuId === list.id && (
                   <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden z-10">
-                    <button onClick={() => { setActiveMenuId(null); alert('Edit list modal'); }} className="w-full flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <button onClick={() => openEditModal(list)} className="w-full flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
                       <Edit2 className="w-4 h-4 mr-3 text-gray-400" /> Rename
                     </button>
                     <button onClick={() => shareList(list)} className="w-full flex items-center px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -120,7 +147,6 @@ export default function WishlistPage() {
               </div>
             </div>
 
-            {/* Items Grid */}
             {list.items.length === 0 ? (
               <p className="text-gray-500 py-8 text-center bg-gray-50 dark:bg-gray-800/50 rounded-2xl">This list is empty.</p>
             ) : (
@@ -152,6 +178,30 @@ export default function WishlistPage() {
           </div>
         ))}
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b dark:border-gray-800">
+              <h3 className="text-xl font-bold">{editingList ? 'Rename List' : 'Create List'}</h3>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-gray-700">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={saveList} className="p-6">
+              <div className="mb-6">
+                <label className="block text-sm font-medium mb-2">List Name</label>
+                <input required value={listName} onChange={e => setListName(e.target.value)} className="w-full p-2 border rounded-md dark:bg-gray-800 dark:border-gray-700" placeholder="e.g. Birthday Gifts" />
+              </div>
+              <div className="flex justify-end gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50 dark:border-gray-700">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-black text-white dark:bg-white dark:text-black font-medium rounded-lg hover:bg-gray-900">Save List</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

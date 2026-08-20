@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button, Form, RHFInput, RHFTextarea } from '@commercex/ui';
 import { LifeBuoy } from 'lucide-react';
+import { useAnalytics } from '../../hooks/use-analytics';
 
 const ticketSchema = z.object({
   department: z.string().min(1, 'Please select a department'),
@@ -30,10 +31,13 @@ export function SupportTicketForm() {
     },
   });
 
+  const { track } = useAnalytics();
+
   const onSubmit = (data: TicketFormData) => {
     setIsLoading(true);
     console.log('Support ticket submitted:', data);
     setTimeout(() => {
+      track('support_request', { department: data.department, priority: data.priority });
       setIsLoading(false);
       setIsSuccess(true);
     }, 1500);

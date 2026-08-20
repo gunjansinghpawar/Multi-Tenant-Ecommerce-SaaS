@@ -34,10 +34,10 @@ export function Footer() {
   return (
     <footer className="bg-muted/30 border-t border-border pt-16 pb-8">
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 mb-16">
+        <div className="grid grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-5 gap-8 laptop:gap-12 mb-16">
           
           {/* Brand & Newsletter Column */}
-          <div className="lg:col-span-2">
+          <div className="laptop:col-span-2">
             <Link href="/" className="font-bold text-2xl tracking-tight uppercase inline-block mb-6">
               Commerce<span className="text-primary">X</span>
             </Link>
@@ -104,7 +104,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-border/50 gap-4">
+        <div className="flex flex-col tablet:flex-row items-center justify-between pt-8 border-t border-border/50 gap-4">
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} CommerceX. All rights reserved.
           </p>

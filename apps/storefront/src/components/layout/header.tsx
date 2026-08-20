@@ -32,19 +32,19 @@ export function Header() {
     >
       <div className="container mx-auto">
         <div className="flex h-16 items-center justify-between">
-          
+
           {/* Mobile Menu & Search (Left) */}
-          <div className="flex flex-1 items-center md:hidden">
+          <div className="flex flex-1 items-center tablet:hidden">
             <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Open menu" aria-haspopup="dialog">
               <Menu className="h-5 w-5" aria-hidden="true" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={toggleSearchModal} aria-label="Search" aria-haspopup="dialog" className="ml-1 hidden xs:flex">
+            <Button variant="ghost" size="icon" onClick={toggleSearchModal} aria-label="Search" aria-haspopup="dialog" className="ml-1 hidden foldable:flex">
               <Search className="h-5 w-5" aria-hidden="true" />
             </Button>
           </div>
 
           {/* Desktop Navigation (Left) */}
-          <nav className="hidden md:flex flex-1 items-center gap-6">
+          <nav className="hidden tablet:flex flex-1 items-center gap-6">
             <Link href="/collections/new" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               New Arrivals
             </Link>
@@ -65,11 +65,11 @@ export function Header() {
 
           {/* Right Actions */}
           <div className="flex flex-1 items-center justify-end gap-1 sm:gap-2">
-            <Button variant="ghost" size="icon" onClick={toggleSearchModal} aria-label="Search" aria-haspopup="dialog" className="hidden md:flex">
+            <Button variant="ghost" size="icon" onClick={toggleSearchModal} aria-label="Search" aria-haspopup="dialog" className="hidden tablet:flex">
               <Search className="h-5 w-5" aria-hidden="true" />
             </Button>
-            
-            <Button variant="ghost" size="icon" aria-label="Account" aria-haspopup="dialog" className="hidden sm:flex" onClick={() => setAuthModalOpen(true)}>
+
+            <Button variant="ghost" size="icon" aria-label="Account" aria-haspopup="dialog" className="hidden mobile:flex" onClick={() => setAuthModalOpen(true)}>
               <User className="h-5 w-5" aria-hidden="true" />
             </Button>
 
@@ -83,7 +83,7 @@ export function Header() {
             >
               <ShoppingBag className="h-5 w-5" aria-hidden="true" />
               {cartCount > 0 && (
-                <span 
+                <span
                   className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground"
                   aria-label={`${cartCount} items in cart`}
                 >

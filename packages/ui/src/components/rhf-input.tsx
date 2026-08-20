@@ -4,6 +4,7 @@ import * as React from "react"
 import { useFormContext, ControllerProps, FieldPath, FieldValues } from "react-hook-form"
 
 import { Input, InputProps } from "./input"
+import { cn } from "@commercex/utils"
 import {
   FormControl,
   FormDescription,
@@ -57,7 +58,10 @@ export function RHFInput<
             <Input 
               {...inputProps} 
               {...field} 
-              className={maxLength && currentLength >= maxLength ? "border-destructive focus-visible:ring-destructive" : ""} 
+              className={cn(
+                inputProps?.className, 
+                maxLength && currentLength >= maxLength ? "border-destructive focus-visible:ring-destructive" : ""
+              )} 
             />
           </FormControl>
           {description && <FormDescription>{description}</FormDescription>}

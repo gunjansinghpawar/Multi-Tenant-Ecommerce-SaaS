@@ -112,3 +112,56 @@ export function BreadcrumbSchema({
   };
   return <StructuredData data={schema} />;
 }
+
+export function ReviewSchema({
+  itemReviewed,
+  authorName,
+  reviewRating,
+  reviewBody,
+}: {
+  itemReviewed: { name: string; image?: string };
+  authorName: string;
+  reviewRating: number;
+  reviewBody: string;
+}) {
+  const schema = {
+    '@context': 'https://schema.org/',
+    '@type': 'Review',
+    itemReviewed: {
+      '@type': 'Product',
+      name: itemReviewed.name,
+      image: itemReviewed.image,
+    },
+    author: {
+      '@type': 'Person',
+      name: authorName,
+    },
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: reviewRating,
+      bestRating: 5,
+    },
+    reviewBody,
+  };
+  return <StructuredData data={schema} />;
+}
+
+export function FAQSchema({
+  faqs,
+}: {
+  faqs: { question: string; answer: string }[];
+}) {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+  return <StructuredData data={schema} />;
+}

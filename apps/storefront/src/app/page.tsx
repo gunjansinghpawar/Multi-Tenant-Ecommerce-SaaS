@@ -61,38 +61,40 @@ const MOCK_CATEGORIES = [
   { title: 'Sports', href: '/collections/sports', image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=800&auto=format&fit=crop' },
 ];
 
+export const revalidate = 3600; // Cache for 1 hour
+
 export default function StorefrontHomePage() {
   return (
     <>
-      <HeroSection 
+      <HeroSection
         title="The Future of Tech is Here."
         subtitle="Discover our latest collection of premium gadgets designed for the modern lifestyle."
         image="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2000&auto=format&fit=crop"
         align="left"
       />
-      
+
       <TrustBadges />
 
-      <CategoryGrid 
+      <CategoryGrid
         title="Shop by Category"
         categories={MOCK_CATEGORIES}
       />
 
-      <ProductCarousel 
+      <ProductCarousel
         title="Trending Right Now"
         subtitle="Our most popular products based on sales."
         products={MOCK_PRODUCTS}
         viewAllLink="/collections/trending"
       />
 
-      <PromoBanner 
+      <PromoBanner
         title="Summer Flash Sale"
         description="Up to 50% off on selected items. Offer ends this weekend."
         image="https://images.unsplash.com/photo-1607082349566-187342175e2f?q=80&w=2000&auto=format&fit=crop"
         ctaText="Shop the Sale"
       />
 
-      <ProductCarousel 
+      <ProductCarousel
         title="New Arrivals"
         subtitle="Be the first to experience our latest drops."
         products={[...MOCK_PRODUCTS].reverse()} // Mocking different products
@@ -100,13 +102,13 @@ export default function StorefrontHomePage() {
       />
 
       <div className="container mx-auto py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <PromoBanner 
+        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-8 landscape:gap-12 portrait:gap-6">
+          <PromoBanner
             title="The Sneaker Drop"
             image="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1000&auto=format&fit=crop"
             className="min-h-[300px]"
           />
-          <PromoBanner 
+          <PromoBanner
             title="Smart Home Essentials"
             image="https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=1000&auto=format&fit=crop"
             className="min-h-[300px]"
@@ -114,7 +116,7 @@ export default function StorefrontHomePage() {
         </div>
       </div>
 
-      <ProductCarousel 
+      <ProductCarousel
         title="Recommended For You (AI)"
         subtitle="Personalized picks based on your browsing history."
         products={MOCK_PRODUCTS.slice(1, 4)}

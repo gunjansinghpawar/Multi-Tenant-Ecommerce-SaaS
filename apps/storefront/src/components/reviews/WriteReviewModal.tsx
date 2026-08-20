@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { Star, X, Image as ImageIcon } from 'lucide-react';
 import { Form, RHFInput, RHFTextarea } from '@commercex/ui';
 import { Review } from './types';
+import { useAnalytics } from '../../hooks/use-analytics';
 
 const reviewSchema = z.object({
   rating: z.number().min(1, 'Please select a rating'),
@@ -44,7 +45,10 @@ export function WriteReviewModal({ isOpen, onClose, onSubmit, initialData }: Wri
     }
   };
 
+  const { track } = useAnalytics();
+
   const submitForm = (data: ReviewFormValues) => {
+    track('review_submitted', { rating: data.rating });
     onSubmit(data, mediaFiles);
     onClose();
   };

@@ -28,7 +28,7 @@ export default function SlackIntegrationPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      webhookUrl: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
+      webhookUrl: "",
       notifyOrders: true,
       notifyRefunds: true,
       notifyStock: false,

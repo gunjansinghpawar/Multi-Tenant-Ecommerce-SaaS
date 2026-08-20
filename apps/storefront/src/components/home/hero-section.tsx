@@ -37,13 +37,13 @@ export function HeroSection({
         className="object-cover"
         sizes="100vw"
       />
-      
+
       {/* Overlay to ensure text readability */}
       <div className="absolute inset-0 bg-black/40" />
 
       {/* Content */}
       <div className="container relative h-full mx-auto">
-        <div 
+        <div
           className={cn(
             "flex h-full flex-col justify-center max-w-2xl",
             align === 'center' && "items-center text-center mx-auto",

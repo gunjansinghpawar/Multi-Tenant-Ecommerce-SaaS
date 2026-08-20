@@ -1,44 +1,63 @@
 import React from 'react';
-import { Button } from '@commercex/ui';
-import Link from 'next/link';
+import { HeroSection } from '@/components/marketing/home/HeroSection';
+import { ValueProposition } from '@/components/marketing/home/ValueProposition';
+import { StoreCreationFlow } from '@/components/marketing/home/StoreCreationFlow';
+import { Differentiators } from '@/components/marketing/home/Differentiators';
+import { AIIntelligence } from '@/components/home/AIIntelligence';
+import { ComparisonMatrix } from '@/components/home/ComparisonMatrix';
+import { ThemeBuilder } from '@/components/home/ThemeBuilder';
+import { OrderTimeline } from '@/components/home/OrderTimeline';
+import { GlobalEdgeMap } from '@/components/home/GlobalEdgeMap';
+import { IntegrationsMarquee } from '@/components/home/IntegrationsMarquee';
+import { HeadlessCode } from '@/components/home/HeadlessCode';
+import { AgencyDashboard } from '@/components/home/AgencyDashboard';
+import { ArchitectureGraph } from '@/components/home/ArchitectureGraph';
 
-export default function StorefrontHomePage() {
+export const dynamic = 'force-static';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'CommerceX — The Complete Multi-Tenant Ecommerce OS',
+  description: 'Create, launch, manage, market, analyze, and scale an entire ecommerce business from one platform.',
+  alternates: {
+    canonical: '/',
+  },
+};
+
+const softwareSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'CommerceX',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Any',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+};
+
+export default function MarketingHomePage() {
   return (
-    <main className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center p-6 md:p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-center font-mono text-sm lg:flex">
-        <div className="flex flex-col items-center space-y-8 text-center">
-          <header className="space-y-4">
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-              CommerceX <span className="text-primary">Storefront</span>
-            </h1>
-            <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
-              Enterprise Multi-Tenant SaaS Core Platform Foundation.
-            </p>
-          </header>
-
-          <div className="flex w-full flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link href="/login">
-              <Button size="lg" className="w-full sm:w-auto">
-                Sign In to Dashboard
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Create an Account
-              </Button>
-            </Link>
-          </div>
-
-          <div className="mt-12 rounded-2xl border bg-card p-8 text-card-foreground shadow-sm">
-            <div className="flex flex-col space-y-2">
-              <h3 className="font-semibold tracking-tight text-xl">Tenant Isolation Active</h3>
-              <p className="text-sm text-muted-foreground">
-                Phase 1 Foundation & Multi-Tenant Core initialized successfully.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
+    <div className="flex flex-col w-full h-full">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+      />
+      <HeroSection />
+      <ValueProposition />
+      <StoreCreationFlow />
+      <Differentiators />
+      <AIIntelligence />
+      <ComparisonMatrix />
+      <ThemeBuilder />
+      <OrderTimeline />
+      <GlobalEdgeMap />
+      <IntegrationsMarquee />
+      <HeadlessCode />
+      <AgencyDashboard />
+      <ArchitectureGraph />
+    </div>
   );
 }

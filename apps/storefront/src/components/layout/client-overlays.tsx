@@ -10,6 +10,9 @@ const AIAssistantWidget = dynamic(() => import('../ai/AIAssistantWidget').then(m
 const InstallPrompt = dynamic(() => import('../pwa/InstallPrompt').then(mod => mod.InstallPrompt), { ssr: false });
 const OfflineIndicator = dynamic(() => import('../pwa/OfflineIndicator').then(mod => mod.OfflineIndicator), { ssr: false });
 const PopupManager = dynamic(() => import('../popups/PopupManager').then(mod => mod.PopupManager), { ssr: false });
+const CompareDrawer = dynamic(() => import('../product/compare-drawer').then(mod => mod.CompareDrawer), { ssr: false });
+const SalesPop = dynamic(() => import('../popups/SalesPop').then(mod => mod.SalesPop), { ssr: false });
+const AnalyticsProvider = dynamic(() => import('../analytics/AnalyticsProvider').then(mod => mod.AnalyticsProvider), { ssr: false });
 
 export function ClientOverlays() {
   return (
@@ -22,6 +25,8 @@ export function ClientOverlays() {
       <InstallPrompt />
       <OfflineIndicator />
       <PopupManager />
+      <CompareDrawer />
+      <SalesPop />
     </>
   );
 }

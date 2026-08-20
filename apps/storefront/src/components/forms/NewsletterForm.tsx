@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button, Form, RHFInput } from '@commercex/ui';
 import { CheckCircle2 } from 'lucide-react';
+import { useAnalytics } from '../../hooks/use-analytics';
 
 const newsletterSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -22,10 +23,13 @@ export function NewsletterForm() {
     defaultValues: { email: '' },
   });
 
+  const { track } = useAnalytics();
+
   const onSubmit = (data: NewsletterFormData) => {
     setIsLoading(true);
     console.log('Newsletter subscription:', data);
     setTimeout(() => {
+      track('newsletter_signup', { email: data.email });
       setIsLoading(false);
       setIsSuccess(true);
     }, 1000);
@@ -50,7 +54,8 @@ export function NewsletterForm() {
               inputProps={{ 
                 type: 'email', 
                 placeholder: 'Enter your email',
-                className: 'bg-background'
+                className: 'bg-background',
+                'aria-label': 'Email address for newsletter'
               }} 
             />
           </div>

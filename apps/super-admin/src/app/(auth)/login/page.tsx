@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { 
+import {
   AuthLayout,
   Button,
   Form,
@@ -59,7 +59,7 @@ export default function SuperAdminLoginPage() {
               {form.formState.errors.root.message}
             </div>
           )}
-          
+
           <RHFInput
             name="email"
             label="Email Address"
@@ -70,7 +70,7 @@ export default function SuperAdminLoginPage() {
               disabled: isLoading
             }}
           />
-          
+
           <div className="space-y-1">
             <RHFInput
               name="password"
@@ -90,10 +90,6 @@ export default function SuperAdminLoginPage() {
           </div>
 
           <div className="pt-2">
-            <RHFCheckbox
-              name="remember"
-              label="Remember me for 30 days"
-            />
           </div>
 
           <Button type="submit" className="w-full mt-6" disabled={isLoading}>
@@ -103,7 +99,7 @@ export default function SuperAdminLoginPage() {
               "Sign In"
             )}
           </Button>
-          
+
           <p className="text-center text-sm text-muted-foreground mt-6">
             Don't have an account?{" "}
             <Link href="/register" className="font-semibold text-primary hover:underline inline-flex items-center">

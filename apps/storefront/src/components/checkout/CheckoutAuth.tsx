@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCheckoutStore } from '../../store/use-checkout-store';
 import { Button, Form, RHFInput } from '@commercex/ui';
+import { ExpressCheckout } from './ExpressCheckout';
 
 const guestSchema = z.object({
   email: z.string().min(1, 'Email is required').email('Invalid email address'),
@@ -44,6 +45,7 @@ export function CheckoutAuth() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <ExpressCheckout />
       <div className="flex space-x-6 border-b pb-4">
         <button
           onClick={() => setCheckoutMode(true)}

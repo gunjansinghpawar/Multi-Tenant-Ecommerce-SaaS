@@ -37,7 +37,7 @@ export function AnnouncementBar({
           <span>{message}</span>
         )}
       </div>
-      
+
       {isClosable && (
         <button
           onClick={() => setIsVisible(false)}

@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, Eye, ShoppingCart } from 'lucide-react';
+import { Heart, Eye, ShoppingCart, Scale } from 'lucide-react';
 import { Button, Badge } from '@commercex/ui';
 import { cn } from '@commercex/utils';
 import { PriceDisplay } from './price-display';
 import { useCartStore } from '../../store/use-cart-store';
 import { useUiStore } from '../../store/use-ui-store';
 import { useWishlistStore } from '../../store/use-wishlist-store';
+import { useCompareStore } from '../../store/use-compare-store';
 
 export interface ProductCardProps {
   id: string;
@@ -41,6 +42,7 @@ export function ProductCard({
   const addItem = useCartStore((state) => state.addItem);
   const openQuickView = useUiStore((state) => state.openQuickView);
   const { addItem: addWishlist, removeItem: removeWishlist, isInWishlist } = useWishlistStore();
+  const { addItem: addCompare, removeItem: removeCompare, isInCompare } = useCompareStore();
 
   // Defer reading persisted wishlist state until after hydration to prevent mismatch
   useEffect(() => {
@@ -50,6 +52,22 @@ export function ProductCard({
   const primaryImage = images[0] || '/placeholder.svg';
   const secondaryImage = images[1] || primaryImage;
   const inWishlist = hasMounted && isInWishlist(id);
+  const inCompare = hasMounted && isInCompare(id);
+
+  const handleCompareToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (inCompare) {
+      removeCompare(id);
+    } else {
+      addCompare({
+        productId: id,
+        name,
+        price,
+        image: primaryImage,
+        inStock
+      });
+    }
+  };
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -117,6 +135,18 @@ export function ProductCard({
           onClick={handleWishlistToggle}
         >
           <Heart className={cn("h-4 w-4", inWishlist && "fill-current")} />
+        </Button>
+        <Button 
+          size="icon" 
+          variant="secondary" 
+          className={cn(
+            "h-8 w-8 rounded-full shadow-sm transition-colors",
+            inCompare ? "bg-primary text-primary-foreground hover:bg-primary/90" : "hover:bg-primary hover:text-primary-foreground"
+          )} 
+          aria-label={inCompare ? "Remove from compare" : "Add to compare"}
+          onClick={handleCompareToggle}
+        >
+          <Scale className={cn("h-4 w-4", inCompare && "fill-current text-primary-foreground")} />
         </Button>
         <Button 
           size="icon" 

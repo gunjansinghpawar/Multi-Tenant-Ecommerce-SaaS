@@ -7,6 +7,7 @@ import { useUiStore, AuthView } from '../../store/use-ui-store';
 import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
 import { PasswordForm } from './PasswordForm';
+import { ResetPasswordForm } from './ResetPasswordForm';
 
 export function AuthModal() {
   const { isAuthModalOpen, setAuthModalOpen, authModalView, setAuthModalView } = useUiStore();
@@ -71,6 +72,7 @@ export function AuthModal() {
               {authModalView === 'login' && "Welcome back"}
               {authModalView === 'register' && "Create an account"}
               {authModalView === 'forgot_password' && "Reset password"}
+              {authModalView === 'reset_password' && "Create new password"}
               {authModalView === 'magic_link' && "Passwordless sign in"}
               {authModalView === 'otp' && "Verify code"}
             </h2>
@@ -78,6 +80,7 @@ export function AuthModal() {
               {authModalView === 'login' && "Enter your email and password to sign in."}
               {authModalView === 'register' && "Enter your details below to create your account."}
               {authModalView === 'forgot_password' && "Enter your email address and we will send you a reset link."}
+              {authModalView === 'reset_password' && "Enter your new password below."}
               {authModalView === 'magic_link' && "Enter your email to receive a secure login code."}
               {authModalView === 'otp' && "We sent a 6-digit verification code to your email."}
             </p>
@@ -87,6 +90,7 @@ export function AuthModal() {
             {authModalView === 'login' && <LoginForm />}
             {authModalView === 'register' && <RegisterForm />}
             {authModalView === 'forgot_password' && <PasswordForm />}
+            {authModalView === 'reset_password' && <ResetPasswordForm />}
             {authModalView === 'magic_link' && (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
@@ -129,18 +133,7 @@ export function AuthModal() {
             )}
           </div>
 
-          {/* Alternative Login Options */}
-          {authModalView === 'login' && (
-            <div className="mt-4 text-center">
-              <button 
-                type="button" 
-                onClick={() => setAuthModalView('magic_link')} 
-                className="text-sm font-medium text-muted-foreground hover:text-foreground flex items-center justify-center w-full gap-2 transition-colors"
-              >
-                <KeyRound className="h-4 w-4" /> Sign in with Magic Link
-              </button>
-            </div>
-          )}
+          {/* Alternative Login Options (Removed Duplicate) */}
 
           {/* Socials (Only on Login/Register) */}
           {(authModalView === 'login' || authModalView === 'register') && <SocialButtons />}

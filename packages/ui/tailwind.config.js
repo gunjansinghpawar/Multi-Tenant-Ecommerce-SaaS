@@ -22,14 +22,18 @@ const config = {
     },
     extend: {
       screens: {
+        'foldable': '320px',  /* Foldable Devices */
         'xs': '320px',        /* Foldables / Micro Mobile */
+        'mobile': '360px',    /* Mobile base */
         'mobile-sm': '360px',
         'mobile-md': '390px',
         'mobile-lg': '480px',
         'tablet': '768px',
+        'laptop': '1024px',   /* Laptop */
         'tablet-lg': '1024px',
         'desktop': '1280px',
         'desktop-md': '1366px',
+        'large-desktop': '1440px', /* Large Desktop */
         'desktop-lg': '1440px',
         'desktop-xl': '1600px',
         'desktop-2xl': '1920px',
@@ -42,6 +46,7 @@ const config = {
       },
       fontSize: {
         caption: ["12px", { lineHeight: "16px" }],
+        label: ["13px", { lineHeight: "18px", fontWeight: "500" }],
         small: ["14px", { lineHeight: "20px" }],
         body: ["16px", { lineHeight: "24px" }],
         h5: ["18px", { lineHeight: "28px", fontWeight: "600" }],
@@ -49,6 +54,7 @@ const config = {
         h3: ["24px", { lineHeight: "32px", fontWeight: "600" }],
         h2: ["30px", { lineHeight: "36px", fontWeight: "700" }],
         h1: ["36px", { lineHeight: "40px", fontWeight: "800" }],
+        display: ["48px", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "800" }],
       },
       boxShadow: {
         small: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
@@ -101,6 +107,19 @@ const config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        neutral: {
+          50: "hsl(var(--neutral-50))",
+          100: "hsl(var(--neutral-100))",
+          200: "hsl(var(--neutral-200))",
+          300: "hsl(var(--neutral-300))",
+          400: "hsl(var(--neutral-400))",
+          500: "hsl(var(--neutral-500))",
+          600: "hsl(var(--neutral-600))",
+          700: "hsl(var(--neutral-700))",
+          800: "hsl(var(--neutral-800))",
+          900: "hsl(var(--neutral-900))",
+          950: "hsl(var(--neutral-950))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

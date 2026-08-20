@@ -11,6 +11,8 @@ import { AuthorProfile } from '@/components/blog/AuthorProfile';
 import { SocialShare } from '@/components/blog/SocialShare';
 import { BlogComments } from '@/components/blog/BlogComments';
 import { BlogCard } from '@/components/blog/BlogCard';
+import { useAnalytics } from '@/hooks/use-analytics';
+import { useEffect } from 'react';
 
 export default function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   // In Next.js 15, params is a Promise in client components when accessed like this, 
@@ -22,9 +24,16 @@ export default function BlogDetailPage({ params }: { params: Promise<{ slug: str
     notFound();
   }
 
-  // Get 3 related posts (just taking random ones from mock for demo)
   const relatedPosts = mockPosts.filter(p => p.id !== post.id).slice(0, 3);
   const postComments = mockComments[post.id] || [];
+
+  const { track } = useAnalytics();
+  
+  useEffect(() => {
+    if (post) {
+      track('blog_read', { title: post.title, slug: post.slug, category: post.category.name });
+    }
+  }, [post, track]);
 
   return (
     <main className="min-h-screen bg-white dark:bg-black pb-24">

@@ -1,0 +1,17 @@
+{
+  "name": "@commercex/document-db",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "lint": "eslint src/",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "mongoose": "^8.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

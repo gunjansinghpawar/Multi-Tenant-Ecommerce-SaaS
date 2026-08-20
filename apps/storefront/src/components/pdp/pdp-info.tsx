@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import { Badge } from '@commercex/ui';
 import { cn } from '@commercex/utils';
 import { PriceDisplay } from '../product/price-display';
+import { VolumeDiscounts } from './VolumeDiscounts';
+import { useAnalytics } from '../../hooks/use-analytics';
 
 interface Variant {
   name: string;
@@ -33,6 +35,11 @@ export function PdpInfo({
   variants = []
 }: PdpInfoProps) {
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
+  const { track } = useAnalytics();
+
+  useEffect(() => {
+    track('product_view', { title, brand, price });
+  }, [title, brand, price, track]);
 
   const handleVariantSelect = (variantName: string, value: string) => {
     setSelectedVariants(prev => ({ ...prev, [variantName]: value }));
@@ -116,6 +123,8 @@ export function PdpInfo({
           </div>
         </div>
       ))}
+      {/* Volume Discounts */}
+      <VolumeDiscounts basePrice={price} />
     </div>
   );
 }

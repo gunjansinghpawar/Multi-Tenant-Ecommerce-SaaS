@@ -3,7 +3,8 @@
 import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Filter, X } from 'lucide-react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, Button, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Checkbox } from '@commercex/ui';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, Button, Accordion, AccordionItem, AccordionTrigger, AccordionContent, Checkbox, Input } from '@commercex/ui';
+import { cn } from '@commercex/utils';
 import { useUiStore } from '../../store/use-ui-store';
 
 const filters = [
@@ -40,13 +41,42 @@ const filters = [
     ],
   },
   {
-    id: 'price',
-    name: 'Price Range',
+    id: 'color',
+    name: 'Color',
     options: [
-      { value: '0-50', label: 'Under $50' },
-      { value: '50-100', label: '$50 - $100' },
-      { value: '100-200', label: '$100 - $200' },
-      { value: '200+', label: 'Over $200' },
+      { value: 'black', label: 'Black', hex: '#000000' },
+      { value: 'white', label: 'White', hex: '#FFFFFF' },
+      { value: 'red', label: 'Red', hex: '#EF4444' },
+      { value: 'blue', label: 'Blue', hex: '#3B82F6' },
+      { value: 'green', label: 'Green', hex: '#22C55E' },
+    ],
+  },
+  {
+    id: 'material',
+    name: 'Material',
+    options: [
+      { value: 'leather', label: 'Leather' },
+      { value: 'mesh', label: 'Mesh' },
+      { value: 'suede', label: 'Suede' },
+      { value: 'canvas', label: 'Canvas' },
+    ],
+  },
+  {
+    id: 'availability',
+    name: 'Availability',
+    options: [
+      { value: 'in-stock', label: 'In Stock' },
+      { value: 'out-of-stock', label: 'Out of Stock' },
+    ],
+  },
+  {
+    id: 'rating',
+    name: 'Rating',
+    options: [
+      { value: '4-up', label: '4 Stars & Up' },
+      { value: '3-up', label: '3 Stars & Up' },
+      { value: '2-up', label: '2 Stars & Up' },
+      { value: '1-up', label: '1 Star & Up' },
     ],
   }
 ];
@@ -55,6 +85,20 @@ export function FilterSidebar({ isMobile = false }: { isMobile?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isFilterDrawerOpen, setFilterDrawerOpen } = useUiStore();
+  const [minPrice, setMinPrice] = React.useState(searchParams.get('minPrice') || '');
+  const [maxPrice, setMaxPrice] = React.useState(searchParams.get('maxPrice') || '');
+
+  const handlePriceApply = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (minPrice) params.set('minPrice', minPrice);
+    else params.delete('minPrice');
+    
+    if (maxPrice) params.set('maxPrice', maxPrice);
+    else params.delete('maxPrice');
+    
+    params.delete('page');
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
 
   const handleFilterChange = (filterId: string, value: string, checked: boolean) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -107,28 +151,85 @@ export function FilterSidebar({ isMobile = false }: { isMobile?: boolean }) {
               </AccordionTrigger>
               <AccordionContent className="pb-4">
                 <div className="space-y-3 pt-1">
-                  {section.options.map((option) => {
-                    const isActive = searchParams.get(section.id)?.split(',').includes(option.value) || false;
-                    return (
-                      <div key={option.value} className="flex items-center space-x-2">
-                        <Checkbox 
-                          id={`filter-${section.id}-${option.value}`} 
-                          checked={isActive}
-                          onCheckedChange={(checked) => handleFilterChange(section.id, option.value, checked as boolean)}
-                        />
-                        <label
-                          htmlFor={`filter-${section.id}-${option.value}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                        >
-                          {option.label}
-                        </label>
-                      </div>
-                    );
-                  })}
+                  {section.id === 'color' ? (
+                    <div className="flex flex-wrap gap-2">
+                      {section.options.map((option) => {
+                        const isActive = searchParams.get(section.id)?.split(',').includes(option.value) || false;
+                        return (
+                          <button
+                            key={option.value}
+                            onClick={() => handleFilterChange(section.id, option.value, !isActive)}
+                            className={cn(
+                              "w-8 h-8 rounded-full border-2 transition-all",
+                              isActive ? "border-primary scale-110" : "border-transparent hover:scale-105"
+                            )}
+                            style={{ backgroundColor: (option as any).hex }}
+                            aria-label={option.label}
+                            title={option.label}
+                          />
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    section.options.map((option) => {
+                      const isActive = searchParams.get(section.id)?.split(',').includes(option.value) || false;
+                      return (
+                        <div key={option.value} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={`filter-${section.id}-${option.value}`} 
+                            checked={isActive}
+                            onCheckedChange={(checked) => handleFilterChange(section.id, option.value, checked as boolean)}
+                          />
+                          <label
+                            htmlFor={`filter-${section.id}-${option.value}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                          >
+                            {option.label}
+                          </label>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </AccordionContent>
             </AccordionItem>
           ))}
+          
+          <AccordionItem value="price-range" className="border-b-0">
+            <AccordionTrigger className="hover:no-underline py-3 text-sm font-medium">
+              Price Range
+            </AccordionTrigger>
+            <AccordionContent className="pb-4">
+              <div className="space-y-4 pt-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                    <Input 
+                      type="number" 
+                      placeholder="Min" 
+                      className="pl-7 h-9 text-sm"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                    />
+                  </div>
+                  <span className="text-muted-foreground">-</span>
+                  <div className="flex-1 relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                    <Input 
+                      type="number" 
+                      placeholder="Max" 
+                      className="pl-7 h-9 text-sm"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <Button size="sm" className="w-full h-9" onClick={handlePriceApply}>
+                  Apply
+                </Button>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
         </Accordion>
       </div>
       

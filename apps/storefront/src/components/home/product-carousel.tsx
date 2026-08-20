@@ -42,12 +42,14 @@ export function ProductCarousel({ title, subtitle, products, viewAllLink }: Prod
               <div className="flex space-x-2 mr-4">
                 <button 
                   onClick={scrollPrev}
+                  aria-label="Previous products"
                   className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-800 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button 
                   onClick={scrollNext}
+                  aria-label="Next products"
                   className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-800 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                   <ChevronRight className="w-5 h-5" />

@@ -9,6 +9,10 @@ export interface BaseEntity {
   updatedAt: Date;
 }
 
+export * from './auth.types';
+export * from './tenant.types';
+export * from './providers.types';
+
 // --- Tenant Types ---
 export type TenantStatus = 'ACTIVE' | 'SUSPENDED' | 'PENDING' | 'DELETED';
 

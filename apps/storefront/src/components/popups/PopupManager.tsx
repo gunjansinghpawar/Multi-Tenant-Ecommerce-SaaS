@@ -7,6 +7,9 @@ import { PreferencesModal } from './PreferencesModal';
 import { EngagementModal } from './EngagementModal';
 import { GatekeeperModal } from './GatekeeperModal';
 import { ProductQuickViewModal } from './ProductQuickViewModal';
+import { ProductActionModal } from './ProductActionModal';
+import { CartActionModal } from './CartActionModal';
+import { ShareModal } from './ShareModal';
 import { useEffect, useState } from 'react';
 
 export function PopupManager() {
@@ -27,6 +30,9 @@ export function PopupManager() {
       case 'ENGAGEMENT': return <EngagementModal />;
       case 'GATEKEEPER': return <GatekeeperModal />;
       case 'QUICK_VIEW': return <ProductQuickViewModal />;
+      case 'PRODUCT_ACTION': return <ProductActionModal />;
+      case 'CART_ACTION': return <CartActionModal />;
+      case 'SHARE': return <ShareModal />;
       default: return null;
     }
   };

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { LayoutGrid, List, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { LayoutGrid, List, SlidersHorizontal, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@commercex/ui';
 import { cn } from '@commercex/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -14,6 +14,8 @@ interface PlpLayoutProps {
   description?: string;
   totalResults: number;
   products: ProductCardProps[];
+  currentPage?: number;
+  totalPages?: number;
 }
 
 const sortOptions = [
@@ -24,7 +26,7 @@ const sortOptions = [
   { label: 'Newest Arrivals', value: 'date-desc' },
 ];
 
-export function PlpLayout({ title, description, totalResults, products }: PlpLayoutProps) {
+export function PlpLayout({ title, description, totalResults, products, currentPage = 1, totalPages = 1 }: PlpLayoutProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setFilterDrawerOpen } = useUiStore();
@@ -40,6 +42,12 @@ export function PlpLayout({ title, description, totalResults, products }: PlpLay
       params.set('sort', value);
     }
     router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', page.toString());
+    router.push(`?${params.toString()}`);
   };
 
   return (
@@ -149,11 +157,49 @@ export function PlpLayout({ title, description, totalResults, products }: PlpLay
             )}
           </div>
 
-          {/* Load More Button */}
-          {totalResults > 0 && (
-            <div className="mt-12 flex justify-center">
-              <Button variant="outline" size="lg" className="px-12 rounded-full">
-                Load More
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-12 flex items-center justify-center gap-2">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                disabled={currentPage <= 1}
+                onClick={() => handlePageChange(currentPage - 1)}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }).map((_, i) => {
+                  const page = i + 1;
+                  // Simple logic: show first, last, and current +/- 1
+                  if (page === 1 || page === totalPages || (page >= currentPage - 1 && page <= currentPage + 1)) {
+                    return (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        className="w-9 h-9"
+                        onClick={() => handlePageChange(page)}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  }
+                  if (page === currentPage - 2 || page === currentPage + 2) {
+                    return <span key={page} className="px-2 text-muted-foreground">...</span>;
+                  }
+                  return null;
+                })}
+              </div>
+
+              <Button 
+                variant="outline" 
+                size="icon" 
+                disabled={currentPage >= totalPages}
+                onClick={() => handlePageChange(currentPage + 1)}
+              >
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           )}
