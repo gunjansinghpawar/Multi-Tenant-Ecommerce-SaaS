@@ -42,7 +42,7 @@ export default function AutomationWorkflowsPage() {
                     <p className="font-medium text-sm">VIP Customer Tagging</p>
                     <PlayIcon className="h-4 w-4 text-success fill-current" />
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">Triggers when total spent > $1k</p>
+                  <p className="text-xs text-muted-foreground mt-1">Triggers when total spent &gt; $1k</p>
                 </div>
                 <div className="p-4 cursor-pointer hover:bg-muted/50 transition-colors">
                   <div className="flex justify-between items-center">
@@ -84,7 +84,7 @@ export default function AutomationWorkflowsPage() {
                 <div className="bg-warning/10 text-warning w-8 h-8 rounded-full flex items-center justify-center mx-auto mb-2">
                   <SettingsIcon className="h-4 w-4" />
                 </div>
-                <p className="font-medium text-sm">Customer total spent > $1000</p>
+                <p className="font-medium text-sm">Customer total spent &gt; $1000</p>
                 <p className="text-xs text-muted-foreground mt-1">Condition</p>
               </div>
 

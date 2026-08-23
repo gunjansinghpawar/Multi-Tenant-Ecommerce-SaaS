@@ -54,6 +54,27 @@ export class AuthService {
           status: 'FAILED',
         }
       });
+      
+      if (user) {
+        await prisma.auditLog.create({
+          data: {
+            action: 'LOGIN_FAILED',
+            actorId: user.id,
+            actorEmail: user.email,
+            resourceType: 'AUTHENTICATION',
+            ipAddress: reqMetadata?.ipAddress || null,
+            userAgent: reqMetadata?.userAgent || null,
+            details: {
+              reason: error.message,
+              deviceType: reqMetadata?.deviceType,
+              browser: reqMetadata?.browserCode,
+              os: reqMetadata?.osCode,
+              location: reqMetadata?.location,
+              tokenVersion: reqMetadata?.tokenVersion
+            }
+          }
+        });
+      }
       throw new Error(`Login failed: ${error.message}`);
     }
 
@@ -67,6 +88,58 @@ export class AuthService {
         status: 'SUCCESS',
       }
     });
+
+    if (user) {
+      try {
+        if (reqMetadata?.deviceCode) {
+          const locationStr = reqMetadata.location ? (typeof reqMetadata.location === 'string' ? reqMetadata.location : JSON.stringify(reqMetadata.location)) : undefined;
+          await prisma.device.upsert({
+            where: {
+              userId_identifier: {
+                userId: user.id,
+                identifier: reqMetadata.deviceCode
+              }
+            },
+            create: {
+              userId: user.id,
+              identifier: reqMetadata.deviceCode,
+              name: reqMetadata.deviceName || "Unknown Device",
+              type: reqMetadata.deviceType || "desktop",
+              os: reqMetadata.osCode,
+              browser: reqMetadata.browserCode,
+              location: locationStr,
+              lastIp: reqMetadata.ipAddress || null,
+            },
+            update: {
+              lastIp: reqMetadata.ipAddress || null,
+              location: locationStr,
+              lastActive: new Date()
+            }
+          });
+        }
+
+        await prisma.auditLog.create({
+          data: {
+            action: 'LOGIN_SUCCESS',
+            actorId: user.id,
+            actorEmail: user.email,
+            resourceType: 'AUTHENTICATION',
+            ipAddress: reqMetadata?.ipAddress || null,
+            userAgent: reqMetadata?.userAgent || null,
+            details: {
+              deviceType: reqMetadata?.deviceType,
+              browser: reqMetadata?.browserCode,
+              os: reqMetadata?.osCode,
+              location: reqMetadata?.location,
+              tokenVersion: reqMetadata?.tokenVersion
+            }
+          }
+        });
+      } catch (trackingError) {
+        console.error('Failed to log device or audit success:', trackingError);
+        // We don't throw here to avoid failing the user's login just because tracking failed
+      }
+    }
 
     return authData;
   }
@@ -139,6 +212,39 @@ export class AuthService {
       throw new Error(`MFA verification failed: ${error.message}`);
     }
     
+    return data;
+  }
+
+  async signInWithOAuth(provider: 'google' | 'github' | 'apple', redirectTo: string) {
+    console.log(`Initiating OAuth login with ${provider}`);
+    const { data, error } = await this.client.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo,
+      },
+    });
+
+    if (error) {
+      throw new Error(`OAuth initiation failed: ${error.message}`);
+    }
+
+    return data; // returns { provider: 'google', url: 'https://...' }
+  }
+
+  async signInWithOtp(email: string, redirectTo?: string) {
+    console.log(`Sending Magic Link/OTP to ${email}`);
+    const { data, error } = await this.client.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: redirectTo,
+      },
+    });
+
+    if (error) {
+      // In a real app, log failed attempts for rate limiting/auditing
+      throw new Error(`Failed to send OTP: ${error.message}`);
+    }
+
     return data;
   }
 }

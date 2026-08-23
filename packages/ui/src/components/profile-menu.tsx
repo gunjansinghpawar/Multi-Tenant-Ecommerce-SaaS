@@ -25,6 +25,8 @@ export interface ProfileMenuProps {
   onLogout?: () => void;
   onProfileClick?: () => void;
   onSettingsClick?: () => void;
+  onShortcutsClick?: () => void;
+  onSupportClick?: () => void;
   children?: React.ReactNode;
 }
 
@@ -33,6 +35,8 @@ export function ProfileMenu({
   onLogout,
   onProfileClick,
   onSettingsClick,
+  onShortcutsClick,
+  onSupportClick,
   children,
 }: ProfileMenuProps) {
   const defaultInitials = user.name
@@ -66,7 +70,7 @@ export function ProfileMenu({
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        
+
         {children ? (
           children
         ) : (
@@ -79,21 +83,17 @@ export function ProfileMenu({
               <SettingsIcon className="mr-2 h-4 w-4 text-muted-foreground" />
               <span>Settings</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem onClick={onShortcutsClick} className="cursor-pointer">
               <KeyboardIcon className="mr-2 h-4 w-4 text-muted-foreground" />
               <span>Keyboard Shortcuts</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              <LifeBuoyIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-              <span>Support</span>
-            </DropdownMenuItem>
           </>
         )}
-        
+
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          onClick={onLogout} 
+        <DropdownMenuItem
+          onClick={onLogout}
           className="text-destructive focus:text-destructive cursor-pointer"
         >
           <LogOutIcon className="mr-2 h-4 w-4" />

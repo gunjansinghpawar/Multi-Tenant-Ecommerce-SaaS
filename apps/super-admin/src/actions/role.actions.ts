@@ -1,12 +1,13 @@
 "use server";
 
 import { RoleService } from "@commercex/services";
+import { RoleScope } from "@prisma/client";
 
 const roleService = new RoleService();
 
-export async function getRolesAction() {
+export async function getRolesAction(scope?: RoleScope) {
   try {
-    const roles = await roleService.getRoles();
+    const roles = await roleService.getRoles(scope);
     return { success: true, data: roles };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to fetch roles" };
@@ -23,7 +24,7 @@ export async function getRoleAction(roleId: string) {
   }
 }
 
-export async function createRoleAction(data: { name: string; description?: string }) {
+export async function createRoleAction(data: { name: string; description?: string; scope?: RoleScope }) {
   try {
     const role = await roleService.createRole(data);
     return { success: true, data: role };
@@ -74,5 +75,14 @@ export async function getPermissionsByCategoryAction() {
     return { success: true, data: grouped };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to fetch permissions" };
+  }
+}
+
+export async function createPermissionAction(data: { key: string; name: string; category: string; description?: string }) {
+  try {
+    const permission = await roleService.createPermission(data);
+    return { success: true, data: permission };
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to create permission" };
   }
 }

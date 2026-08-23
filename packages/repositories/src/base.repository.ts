@@ -5,7 +5,7 @@ import { prisma, createTenantScopedClient, PrismaTransactionClient } from '@comm
  * Base Repository pattern with built-in tenant scoping and transaction support.
  */
 export abstract class BaseRepository {
-  protected db: ReturnType<typeof createTenantScopedClient> | PrismaClient | PrismaTransactionClient;
+  protected db: PrismaClient;
   protected tenantId?: string;
 
   /**
@@ -18,9 +18,9 @@ export abstract class BaseRepository {
       // If we are in a transaction, use the transaction context directly.
       // (Note: To strictly scope transactions by tenant, raw SQL isolation might be required, 
       // but for Prisma interactive transactions, we use the tx client).
-      this.db = tx;
+      this.db = tx as unknown as PrismaClient;
     } else {
-      this.db = tenantId ? createTenantScopedClient(prisma, tenantId) : prisma;
+      this.db = (tenantId ? createTenantScopedClient(prisma, tenantId) : prisma) as unknown as PrismaClient;
     }
   }
 

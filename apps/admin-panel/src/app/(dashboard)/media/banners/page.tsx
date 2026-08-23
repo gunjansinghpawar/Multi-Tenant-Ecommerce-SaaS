@@ -7,7 +7,7 @@ import {
   CardContent,
   Button,
 } from "@commercex/ui";
-import { UploadIcon, ImageAspecRatioIcon, MoreVerticalIcon } from "lucide-react";
+import { UploadIcon, ImageIcon, MoreVerticalIcon } from "lucide-react";
 
 export default function MediaBannersPage() {
   const banners = Array.from({ length: 4 }).map((_, i) => ({
@@ -33,7 +33,7 @@ export default function MediaBannersPage() {
         {banners.map((banner) => (
           <Card key={banner.id} className="overflow-hidden hover:border-primary/50 transition-colors group cursor-pointer">
             <div className="aspect-[21/9] bg-muted flex items-center justify-center relative">
-              <ImageAspecRatioIcon className="h-10 w-10 text-muted-foreground/30" />
+              <ImageIcon className="h-10 w-10 text-muted-foreground/30" />
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button variant="secondary" size="icon" className="h-7 w-7 rounded-full shadow-sm">
                   <MoreVerticalIcon className="h-4 w-4" />

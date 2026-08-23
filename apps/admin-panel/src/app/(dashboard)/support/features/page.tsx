@@ -54,7 +54,7 @@ export default function FeatureRequestsPage() {
         <CardContent className="pt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <RHFInput name="title" label="Feature Title" placeholder="e.g. Add integration for XYZ CRM" />
+              <RHFInput name="title" label="Feature Title" inputProps={{ placeholder: "e.g. Add integration for XYZ CRM" }} />
               
               <div className="space-y-2">
                 <label className="text-sm font-medium">Description</label>

@@ -52,7 +52,7 @@ export default function ContactSupportPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <RHFInput name="department" label="Department" description="e.g. Technical Support, Billing, General Inquiry" />
-              <RHFInput name="subject" label="Subject" placeholder="Brief summary of your issue" />
+              <RHFInput name="subject" label="Subject" inputProps={{ placeholder: "Brief summary of your issue" }} />
               
               <div className="space-y-2">
                 <label className="text-sm font-medium">Message</label>

@@ -132,7 +132,7 @@ export default function ReportsAnalyticsPage() {
                   ]} 
                 />
 
-                <RHFInput name="emailTo" label="Email To (Optional)" placeholder="e.g. accountant@company.com" />
+                <RHFInput name="emailTo" label="Email To (Optional)" inputProps={{ placeholder: "e.g. accountant@company.com" }} />
                 
                 <div className="pt-4">
                   <Button type="submit" className="w-full" disabled={isGenerating}>

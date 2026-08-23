@@ -2,13 +2,27 @@ import { PrismaClient, Prisma } from '@prisma/client';
 import { prisma, createTenantScopedClient } from '@commercex/database';
 
 export class UserRepository {
-  private db: ReturnType<typeof createTenantScopedClient> | PrismaClient;
+  private db: PrismaClient;
   private tenantId?: string;
 
   constructor(tenantId?: string) {
     this.tenantId = tenantId;
     // If tenantId is provided, use the tenant-scoped client. Otherwise, use global client.
-    this.db = tenantId ? createTenantScopedClient(prisma, tenantId) : prisma;
+    this.db = (tenantId ? createTenantScopedClient(prisma, tenantId) : prisma) as unknown as PrismaClient;
+  }
+
+  async findAll(params?: Prisma.UserFindManyArgs) {
+    return this.db.user.findMany({
+      ...params,
+      include: {
+        platformRoles: {
+          include: { role: true }
+        },
+        ...params?.include,
+      },
+      where: params?.where,
+      orderBy: params?.orderBy || { createdAt: 'desc' }
+    });
   }
 
   async findById(id: string) {

@@ -54,7 +54,7 @@ export default function BugReportsPage() {
         <CardContent className="pt-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <RHFInput name="title" label="Issue Title" placeholder="e.g. Cannot save product when weight is zero" />
+              <RHFInput name="title" label="Issue Title" inputProps={{ placeholder: "e.g. Cannot save product when weight is zero" }} />
               
               <div className="space-y-2">
                 <label className="text-sm font-medium">Steps to Reproduce</label>

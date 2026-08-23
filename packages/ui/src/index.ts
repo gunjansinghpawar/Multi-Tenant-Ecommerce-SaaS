@@ -8,6 +8,7 @@ export * from './components/error-state';
 export * from './components/audit-timeline';
 export * from './components/table';
 export * from './components/data-table';
+export * from './components/data-table-skeleton';
 export * from './components/theme-provider';
 export * from './components/input';
 export * from './components/label';

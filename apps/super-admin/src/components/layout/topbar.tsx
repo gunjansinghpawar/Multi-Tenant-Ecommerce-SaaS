@@ -1,18 +1,18 @@
 "use client";
 
 import React from "react";
-import { usePathname } from "next/navigation";
-import { 
-  SearchIcon, 
-  MenuIcon, 
+import { usePathname, useRouter } from "next/navigation";
+import {
+  SearchIcon,
+  MenuIcon,
   PlusIcon,
   MessageSquareIcon,
   BuildingIcon,
   CheckIcon,
   ChevronsUpDownIcon
 } from "lucide-react";
-import { 
-  Input, 
+import {
+  Input,
   Button,
   Avatar,
   AvatarImage,
@@ -27,9 +27,12 @@ import {
   Breadcrumbs,
   useSidebar,
   NotificationDrawer,
-  ProfileMenu
+  ProfileMenu,
+  useToast
 } from "@commercex/ui";
 import { cn } from "@commercex/utils";
+
+import { logoutAction } from "../../actions/auth.actions";
 
 // Dummy data for Tenant Switcher
 const tenants = [
@@ -37,21 +40,32 @@ const tenants = [
   { id: "2", name: "Globex Inc", plan: "Pro" },
 ];
 
-const currentUser = { 
-  name: "Super Admin", 
-  email: "admin@commercex.com", 
-  initials: "SA", 
-  avatarUrl: "https://github.com/shadcn.png" 
-};
+// const currentUser = { 
+//   name: "Super Admin", 
+//   email: "admin@commercex.com", 
+//   initials: "SA", 
+//   avatarUrl: "https://github.com/shadcn.png" 
+// };
 
 const dummyNotifications = [
   { id: "1", title: "New Tenant", description: "Acme Corp just joined.", time: "5 mins ago", read: false },
 ];
 
-export function Topbar() {
+export function Topbar({ user }: { user?: any }) {
   const { toggleSidebar } = useSidebar();
   const pathname = usePathname();
+  const router = useRouter();
+  const { toast } = useToast();
   const [activeTenant, setActiveTenant] = React.useState(tenants[0]);
+
+  const handleLogout = async () => {
+    await logoutAction();
+    toast({
+      title: "Logged Out",
+      description: "You have been securely logged out.",
+    });
+    router.replace("/login");
+  };
 
   // Generate basic breadcrumbs from pathname
   const paths = pathname.split("/").filter(Boolean);
@@ -65,7 +79,7 @@ export function Topbar() {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-background/80 px-4 md:px-6 backdrop-blur-md">
-      
+
       {/* Left Section: Mobile Toggle & Breadcrumbs */}
       <div className="flex items-center gap-4 flex-1">
         <Button variant="ghost" size="icon" className="md:hidden shrink-0" onClick={toggleSidebar}>
@@ -90,7 +104,7 @@ export function Topbar() {
 
       {/* Right Section: Actions & Profile */}
       <div className="flex items-center gap-2 md:gap-3 flex-1 justify-end">
-        
+
         {/* Quick Create */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -115,50 +129,25 @@ export function Topbar() {
 
         {/* Notifications */}
         <NotificationDrawer notifications={dummyNotifications} />
-        
+
         <ThemeToggle />
 
         <div className="h-4 w-px bg-border hidden sm:block mx-1" />
 
-        {/* Tenant Switcher */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="hidden lg:flex h-9 gap-2 px-2 rounded-[10px] bg-background">
-              <div className="flex h-5 w-5 items-center justify-center rounded bg-primary/10 text-primary">
-                <BuildingIcon className="h-3 w-3" />
-              </div>
-              <span className="text-sm font-medium truncate max-w-[100px]">{activeTenant.name}</span>
-              <ChevronsUpDownIcon className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[200px]">
-            <DropdownMenuLabel>Switch Tenant</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {tenants.map(tenant => (
-              <DropdownMenuItem 
-                key={tenant.id} 
-                className="justify-between cursor-pointer"
-                onClick={() => setActiveTenant(tenant)}
-              >
-                <div className="flex flex-col">
-                  <span>{tenant.name}</span>
-                  <span className="text-xs text-muted-foreground">{tenant.plan}</span>
-                </div>
-                {activeTenant.id === tenant.id && <CheckIcon className="h-4 w-4 text-primary" />}
-              </DropdownMenuItem>
-            ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <PlusIcon className="mr-2 h-4 w-4" />
-              Create Tenant
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
         {/* Profile Dropdown */}
-        <ProfileMenu user={currentUser} />
+        {user && (
+          <ProfileMenu
+            user={user}
+            onLogout={handleLogout}
+            onProfileClick={() => router.push('/profile')}
+            onSettingsClick={() => router.push('/settings')}
+            onShortcutsClick={() => router.push('/shortcuts')}
+            onSupportClick={() => router.push('/support')}
+          />
+        )}
 
       </div>
     </header>
   );
 }
+

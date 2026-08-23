@@ -66,7 +66,7 @@ export default function DomainsPage() {
             {/* Primary Domain */}
             <Card className="border-primary border-2 shadow-sm relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4">
-                <Badge variant="primary" className="bg-primary/20 text-primary border-primary">Primary Domain</Badge>
+                <Badge variant="default" className="bg-primary/20 text-primary border-primary">Primary Domain</Badge>
               </div>
               <CardHeader>
                 <CardTitle className="text-xl flex items-center gap-2">

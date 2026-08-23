@@ -24,17 +24,42 @@ interface AppSidebarProps {
 
 export function AppSidebar({ children, className, logo }: AppSidebarProps) {
   const { isCollapsed, toggleSidebar } = useSidebar()
+  const [isMobile, setIsMobile] = useState(false)
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   return (
-    <motion.aside
-      initial={false}
-      animate={{ width: isCollapsed ? 80 : 280 }}
-      transition={{ duration: 0.25, ease: "easeInOut" }}
-      className={cn(
-        "relative flex h-screen flex-col border-r border-border bg-sidebar shrink-0 overflow-hidden",
-        className
-      )}
-    >
+    <>
+      <AnimatePresence>
+        {isMobile && !isCollapsed && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={toggleSidebar}
+            className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      <motion.aside
+        initial={false}
+        animate={{ 
+          width: isMobile ? 280 : (isCollapsed ? 80 : 280),
+          x: isMobile ? (isCollapsed ? -280 : 0) : 0
+        }}
+        transition={{ duration: 0.25, ease: "easeInOut" }}
+        className={cn(
+          "relative flex h-screen flex-col border-r border-border bg-sidebar shrink-0 overflow-hidden",
+          isMobile ? "fixed inset-y-0 left-0 z-50" : "",
+          className
+        )}
+      >
       {/* Header / Logo */}
       <div className="flex h-16 shrink-0 items-center justify-between px-4">
         <AnimatePresence mode="popLayout">
@@ -70,6 +95,7 @@ export function AppSidebar({ children, className, logo }: AppSidebarProps) {
         {children}
       </div>
     </motion.aside>
+    </>
   )
 }
 
@@ -113,7 +139,7 @@ export function SidebarSearch({ value, onChange }: SidebarSearchProps) {
 // Sidebar Group
 // ----------------------------------------------------------------------
 interface SidebarGroupProps {
-  title: string
+  title?: string
   children: React.ReactNode
 }
 
@@ -126,9 +152,11 @@ export function SidebarGroup({ title, children }: SidebarGroupProps) {
 
   return (
     <div className="mb-6 px-3">
-      <h4 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-        {title}
-      </h4>
+      {title && (
+        <h4 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+          {title}
+        </h4>
+      )}
       <div className="space-y-1">{children}</div>
     </div>
   )

@@ -45,7 +45,7 @@ export function NotificationDrawer({
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-sm md:w-[400px]">
-        <SheetHeader className="mb-4 flex flex-row items-center justify-between space-y-0">
+        <SheetHeader className="my-4 flex flex-row items-center justify-between space-y-0">
           <div className="flex flex-col space-y-1 text-left">
             <SheetTitle>Notifications</SheetTitle>
             <SheetDescription>

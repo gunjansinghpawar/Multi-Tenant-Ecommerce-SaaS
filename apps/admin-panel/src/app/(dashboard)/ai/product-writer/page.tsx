@@ -78,7 +78,7 @@ Discover the perfect blend of utility and design. Tailored specifically for ${va
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <RHFInput name="productName" label="Product Name" placeholder="e.g. Wireless Noise-Cancelling Headphones" />
+                <RHFInput name="productName" label="Product Name" inputProps={{ placeholder: "e.g. Wireless Noise-Cancelling Headphones" }} />
                 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Key Features (comma separated)</label>
@@ -100,7 +100,7 @@ Discover the perfect blend of utility and design. Tailored specifically for ${va
                       { label: "Humorous", value: "Humorous" },
                     ]} 
                   />
-                  <RHFInput name="targetAudience" label="Target Audience" placeholder="e.g. Commuters, Athletes" />
+                  <RHFInput name="targetAudience" label="Target Audience" inputProps={{ placeholder: "e.g. Commuters, Athletes" }} />
                 </div>
                 
                 <div className="pt-4 flex justify-end">

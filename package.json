@@ -10,7 +10,7 @@
   ],
   "packageManager": "npm@11.17.0",
   "scripts": {
-    "predev": "node scripts/seed.js",
+    "seed": "node scripts/seed.js && node scripts/seed-users.js && node scripts/seed-masters.js && node scripts/seed-masters-part2.js && node scripts/seed-plans-billing.js",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.5",
+    "@types/ua-parser-js": "^0.7.39",
     "autoprefixer": "^10.5.4",
     "next": "^15.1.7",
     "postcss": "^8.5.22",
@@ -45,6 +46,7 @@
     "dotenv": "^17.4.2",
     "ioredis": "^6.0.0",
     "mongoose": "^9.9.2",
+    "ua-parser-js": "^2.0.10",
     "zundo": "^2.3.0",
     "zustand": "^5.0.14"
   }

@@ -1,7 +1,7 @@
 'use client';
 
 import { usePopupStore } from '@/store/usePopupStore';
-import { Button, Dialog, DialogContent } from '@commercex/ui';
+import { Button, Dialog, DialogContent, Input } from '@commercex/ui';
 import { X, Truck, Tag, Gift } from 'lucide-react';
 
 export function CartActionModal() {
@@ -25,8 +25,8 @@ export function CartActionModal() {
               {message || "Enter your destination to get a shipping estimate."}
             </p>
             <div className="space-y-2">
-              <input type="text" placeholder="Country" className="w-full p-2 border rounded-md" />
-              <input type="text" placeholder="Zip/Postal Code" className="w-full p-2 border rounded-md" />
+              <Input type="text" placeholder="Country" />
+              <Input type="text" placeholder="Zip/Postal Code" />
             </div>
             <Button className="w-full" onClick={closePopup}>Calculate</Button>
           </div>
@@ -41,7 +41,7 @@ export function CartActionModal() {
             <p className="text-sm text-muted-foreground">
               {message || "Enter your coupon code below."}
             </p>
-            <input type="text" placeholder="Coupon code" className="w-full p-2 border rounded-md" />
+            <Input type="text" placeholder="Coupon code" />
             <Button className="w-full" onClick={closePopup}>Apply</Button>
           </div>
         );
@@ -56,8 +56,8 @@ export function CartActionModal() {
               {message || "Enter your gift card number and pin."}
             </p>
             <div className="space-y-2">
-              <input type="text" placeholder="Card Number" className="w-full p-2 border rounded-md" />
-              <input type="password" placeholder="PIN" className="w-full p-2 border rounded-md" />
+              <Input type="text" placeholder="Card Number" />
+              <Input type="password" placeholder="PIN" />
             </div>
             <Button className="w-full" onClick={closePopup}>Check Balance / Apply</Button>
           </div>

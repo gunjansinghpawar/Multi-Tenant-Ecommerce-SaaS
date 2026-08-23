@@ -27,7 +27,8 @@ import {
   LayoutTemplateIcon,
   CodeIcon,
   UndoIcon,
-  RedoIcon
+  RedoIcon,
+  PlusIcon
 } from "lucide-react";
 import Link from "next/link";
 

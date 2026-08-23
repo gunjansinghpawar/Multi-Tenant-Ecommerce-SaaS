@@ -76,7 +76,7 @@ export default function AISEOPage() {
                   ]} 
                 />
                 
-                <RHFInput name="primaryKeyword" label="Primary Keyword" placeholder="e.g. Running Shoes" />
+                <RHFInput name="primaryKeyword" label="Primary Keyword" inputProps={{ placeholder: "e.g. Running Shoes" }} />
                 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Page Content Summary</label>
@@ -118,7 +118,7 @@ export default function AISEOPage() {
                     </span>
                   </div>
                   <div className="flex gap-2">
-                    <RHFInput name="out_title" value={generatedOutput.title} readOnly />
+                    <RHFInput name="out_title" inputProps={{ value: generatedOutput.title, readOnly: true }} />
                     <Button variant="outline" size="icon" onClick={() => navigator.clipboard.writeText(generatedOutput.title)}><CopyIcon className="h-4 w-4" /></Button>
                   </div>
                 </div>
@@ -143,7 +143,7 @@ export default function AISEOPage() {
                 <div className="space-y-2">
                   <label className="text-sm font-medium">URL Slug</label>
                   <div className="flex gap-2">
-                    <RHFInput name="out_slug" value={generatedOutput.slug} readOnly />
+                    <RHFInput name="out_slug" inputProps={{ value: generatedOutput.slug, readOnly: true }} />
                     <Button variant="outline" size="icon" onClick={() => navigator.clipboard.writeText(generatedOutput.slug)}><CopyIcon className="h-4 w-4" /></Button>
                   </div>
                 </div>

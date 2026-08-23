@@ -19,20 +19,35 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [favoriteItems, setFavoriteItems] = useState<string[]>([])
   const [mounted, setMounted] = useState(false)
 
-  // Load from localStorage on mount
+  // Load from localStorage and handle screen size on mount
   useEffect(() => {
     try {
       const savedCollapsed = localStorage.getItem("sidebar:collapsed")
       const savedPins = localStorage.getItem("sidebar:pins")
       const savedFavs = localStorage.getItem("sidebar:favorites")
 
-      if (savedCollapsed) setIsCollapsed(JSON.parse(savedCollapsed))
+      if (savedCollapsed) {
+        setIsCollapsed(JSON.parse(savedCollapsed))
+      } else {
+        // Default to closed on mobile, open on desktop
+        setIsCollapsed(window.innerWidth < 768)
+      }
+
       if (savedPins) setPinnedItems(JSON.parse(savedPins))
       if (savedFavs) setFavoriteItems(JSON.parse(savedFavs))
     } catch (e) {
       console.warn("Failed to load sidebar state from localStorage", e)
     }
     setMounted(true)
+    
+    // Auto-close on resize to mobile
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsCollapsed(true)
+      }
+    }
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
   }, [])
 
   const toggleSidebar = () => {

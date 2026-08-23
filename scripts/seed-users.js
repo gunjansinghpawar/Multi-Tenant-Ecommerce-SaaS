@@ -21,9 +21,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 });
 
 const users = [
-  { email: 'admin@commercex.com', password: 'password123', role: 'admin' },
-  { email: 'superadmin@commercex.com', password: 'password123', role: 'superadmin' },
-  { email: 'customer@commercex.com', password: 'password123', role: 'customer' }
+  { email: 'superadmin@commercex.com', password: 'password123', role: 'superadmin' }
 ];
 
 async function seed() {

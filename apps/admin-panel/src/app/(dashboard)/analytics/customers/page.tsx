@@ -55,7 +55,7 @@ export default function CustomersAnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">34.2%</div>
-            <p className="text-xs text-muted-foreground mt-1">Made >1 purchase</p>
+            <p className="text-xs text-muted-foreground mt-1">Made &gt;1 purchase</p>
           </CardContent>
         </Card>
 

@@ -18,7 +18,8 @@ import {
   LinkIcon, 
   SettingsIcon,
   UsersIcon,
-  StarIcon
+  StarIcon,
+  PlusIcon
 } from "lucide-react";
 
 export default function MarketingProgramsPage() {

@@ -45,6 +45,8 @@ model Tenant {
   deletedAt    DateTime?
 
   // Relations
+  planId       String?      @db.Uuid
+  plan         PlanTier?    @relation(fields: [planId], references: [id])
   memberships Membership[]
   settings    TenantSettings?
   theme       ThemeAssignment?
@@ -120,17 +122,20 @@ model Tenant {
   seoIndexingEvents       SeoIndexingEvent[]
   notifications           Notification[]
   notificationTemplates   NotificationTemplate[]
-  whatsappAccount         WhatsappAccount?
+  
   whatsappPhoneNumbers    WhatsappPhoneNumber[]
   whatsappTemplates       WhatsappTemplate[]
   whatsappConversations   WhatsappConversation[]
   whatsappCampaigns       WhatsappCampaign[]
   whatsappWebhooks        WhatsappWebhook[]
-  emailProviderConfigs    EmailProviderConfig[]
+  notificationProviders   NotificationProvider[]
+  notificationSettings    NotificationSettings?
+  notificationLogs        NotificationLog[]
+  notificationPreferences NotificationPreference[]
   emailTemplates          EmailTemplate[]
   emailCampaigns          EmailCampaign[]
   emailSuppressions       EmailSuppression[]
-  smsProviderConfigs      SmsProviderConfig[]
+  
   smsTemplates            SmsTemplate[]
   analyticsSessions       AnalyticsSession[]
   analyticsPageViews      AnalyticsPageView[]
@@ -217,7 +222,7 @@ model User {
   loginAttempts          LoginAttempt[]
   cmsPosts               CmsPost[]
   notifications          Notification[]
-  notificationPreference NotificationPreference?
+  notificationPreferences NotificationPreference[]
   oauthAuthorizations    OauthAuthorization[]
 
   @@index([email])
@@ -289,8 +294,8 @@ model VerificationToken {
   email     String
   token     String   @unique
   expiresAt DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@index([email])
   @@index([token])
@@ -389,6 +394,10 @@ model Device {
   identifier String
   name       String?
   type       String?
+  os         String?
+  browser    String?
+  location   String?
+  isTrusted  Boolean  @default(false)
   lastIp     String?
   lastActive DateTime @default(now())
   createdAt  DateTime @default(now())
@@ -643,6 +652,7 @@ model Customer {
   @@index([tenantId])
   @@index([deletedAt])
   @@index([tenantId, createdAt])
+  notificationPreferences NotificationPreference[]
 }
 
 model Order {
@@ -1289,7 +1299,7 @@ model ThemeInstallation {
   tenantId       String
   themeId        String
   themeVersionId String
-  isActive       Boolean  @default(false)
+  status RecordStatus @default(INACTIVE)
   settings       Json? // Tenant overrides
   installedAt    DateTime @default(now())
 
@@ -1546,7 +1556,7 @@ model Warehouse {
   tenantId String
   name     String
   address  Json?
-  isActive Boolean @default(true)
+  status RecordStatus @default(ACTIVE)
 
   items     InventoryItem[]
   tenant    Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -1737,7 +1747,7 @@ model AutomationWorkflow {
   name      String
   trigger   String // e.g. ORDER_CREATED, CART_ABANDONED
   steps     Json // Workflow DSL
-  isActive  Boolean  @default(false)
+  status RecordStatus @default(INACTIVE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1808,7 +1818,7 @@ model WebhookEndpoint {
   url       String
   events    Json // Array of subscribed event types
   secret    String // Used for signing payloads
-  isActive  Boolean  @default(true)
+  status RecordStatus @default(ACTIVE)
   createdAt DateTime @default(now())
 
   tenant     Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -1843,7 +1853,7 @@ model Plan {
   updatedAt   DateTime @updatedAt
 
   limits   Json // E.g. { "products": 1000, "staff": 5 }
-  isActive Boolean @default(true)
+  status RecordStatus @default(ACTIVE)
 }
 
 // ==========================================
@@ -2223,7 +2233,7 @@ model PaymentProviderConfig {
   tenantId    String
   provider    String
   credentials Json
-  isActive    Boolean  @default(true)
+  status RecordStatus @default(ACTIVE)
   tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -2235,7 +2245,7 @@ model PaymentMethodConfig {
   id        String   @id @default(uuid())
   tenantId  String
   type      String // CREDIT_CARD, PAYPAL
-  isActive  Boolean  @default(true)
+  status RecordStatus @default(ACTIVE)
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2318,7 +2328,7 @@ model ShippingMethodConfig {
   id        String   @id @default(uuid())
   tenantId  String
   name      String
-  isActive  Boolean  @default(true)
+  status RecordStatus @default(ACTIVE)
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2415,7 +2425,7 @@ model Promotion {
   id        String    @id @default(uuid())
   tenantId  String
   name      String
-  isActive  Boolean   @default(true)
+  status RecordStatus @default(ACTIVE)
   tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -2615,14 +2625,6 @@ model Notification {
   @@index([tenantId])
 }
 
-model NotificationPreference {
-  id          String   @id @default(uuid())
-  userId      String   @unique
-  preferences Json
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
 
 model NotificationTemplate {
   id        String   @id @default(uuid())
@@ -2656,16 +2658,6 @@ model NotificationEvent {
 }
 
 // --- WhatsApp Additions ---
-model WhatsappAccount {
-  id        String   @id @default(uuid())
-  tenantId  String   @unique
-  accountId String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tenantId])
-}
 
 model WhatsappPhoneNumber {
   id        String   @id @default(uuid())
@@ -2731,21 +2723,12 @@ model WhatsappDeliveryEvent {
 }
 
 // --- Email Additions ---
-model EmailProviderConfig {
-  id        String   @id @default(uuid())
-  tenantId  String
-  provider  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tenantId])
-}
 
 model EmailTemplate {
   id        String   @id @default(uuid())
   tenantId  String
   name      String
+  subject   String?
   html      String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -2785,20 +2768,11 @@ model EmailSuppression {
 }
 
 // --- SMS Additions ---
-model SmsProviderConfig {
-  id        String   @id @default(uuid())
-  tenantId  String
-  provider  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tenantId])
-}
 
 model SmsTemplate {
   id        String   @id @default(uuid())
   tenantId  String
+  name      String
   content   String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -3031,3 +3005,1296 @@ model OauthAuthorization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// Master Data Management
+
+enum RecordStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum Direction {
+  LTR
+  RTL
+}
+
+enum SymbolPosition {
+  BEFORE
+  AFTER
+}
+
+enum RateType {
+  PERCENTAGE
+  FIXED
+}
+
+enum MasterScope {
+  GLOBAL
+  TENANT
+}
+
+model Continent {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(20)
+  name        String    @db.VarChar(120)
+  slug        String    @unique @db.VarChar(160)
+  description String?
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  isoCode     String?   @unique @db.VarChar(10)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  countries Country[]
+
+  @@index([status, sortOrder])
+}
+
+model Country {
+  id           String    @id @default(uuid()) @db.Uuid
+  continentId  String    @db.Uuid
+  currencyId   String?   @db.Uuid
+  iso2         String    @unique @db.VarChar(2)
+  iso3         String    @unique @db.VarChar(3)
+  numericCode  Int       @unique
+  name         String    @db.VarChar(150)
+  officialName String?
+  nativeName   String?
+  slug         String    @unique @db.VarChar(180)
+  phoneCode    String?   @db.VarChar(20)
+  capital      String?
+  latitude     Decimal?  @db.Decimal(10, 7)
+  longitude    Decimal?  @db.Decimal(10, 7)
+  flag         String?
+  sortOrder    Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata     Json?
+  nationality  String?   @db.VarChar(100)
+  regions      Region[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  continent        Continent         @relation(fields: [continentId], references: [id], onDelete: Restrict)
+  currency         Currency?         @relation(fields: [currencyId], references: [id], onDelete: SetNull)
+  states           State[]
+  cities           City[]
+  timezones        Timezone[]
+  taxRates         TaxRate[]
+  phoneCountryCode PhoneCountryCode?
+
+  @@index([continentId, status])
+}
+
+model State {
+  id        String    @id @default(uuid()) @db.Uuid
+  countryId String    @db.Uuid
+  code      String    @db.VarChar(30)
+  name      String    @db.VarChar(150)
+  slug      String    @db.VarChar(180)
+  type      String?   @db.VarChar(50)
+  latitude  Decimal?  @db.Decimal(10, 7)
+  longitude Decimal?  @db.Decimal(10, 7)
+  sortOrder Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata  Json?
+  stateType String?   @db.VarChar(50)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  country  Country   @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  cities   City[]
+  taxRates TaxRate[]
+
+  @@unique([countryId, code])
+  @@unique([countryId, slug])
+  @@index([countryId, status])
+}
+
+model City {
+  id                String    @id @default(uuid()) @db.Uuid
+  countryId         String    @db.Uuid
+  stateId           String?   @db.Uuid
+  name              String    @db.VarChar(180)
+  slug              String    @db.VarChar(220)
+  postalCodePattern String?
+  latitude          Decimal?  @db.Decimal(10, 7)
+  longitude         Decimal?  @db.Decimal(10, 7)
+  population        BigInt?
+  sortOrder         Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata          Json?
+  postalCode        String?   @db.VarChar(50)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  country Country @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  state   State?  @relation(fields: [stateId], references: [id], onDelete: SetNull)
+
+  @@unique([countryId, stateId, slug])
+  @@index([countryId, stateId, status])
+}
+
+model Currency {
+  id                 String         @id @default(uuid()) @db.Uuid
+  code               String         @unique @db.VarChar(3)
+  numericCode        Int            @unique
+  name               String         @db.VarChar(100)
+  symbol             String         @db.VarChar(10)
+  nativeSymbol       String?        @db.VarChar(10)
+  decimalDigits      Int            @default(2)
+  decimalSeparator   String         @default(".") @db.VarChar(5)
+  thousandsSeparator String         @default(",") @db.VarChar(5)
+  symbolPosition     SymbolPosition @default(BEFORE)
+  minorUnit          Int            @default(100)
+  status RecordStatus @default(ACTIVE)
+
+  metadata       Json?
+  isBaseCurrency Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  countries Country[]
+  planTiers PlanTier[]
+
+  @@index([status])
+}
+
+model Language {
+  id         String    @id @default(uuid()) @db.Uuid
+  code       String    @unique @db.VarChar(20)
+  locale     String    @unique @db.VarChar(20)
+  name       String    @db.VarChar(100)
+  nativeName String?
+  direction  Direction @default(LTR)
+  status RecordStatus @default(ACTIVE)
+  sortOrder  Int       @default(0)
+  metadata   Json?
+  isDefault  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  @@index([status, sortOrder])
+}
+
+model Timezone {
+  id           String    @id @default(uuid()) @db.Uuid
+  identifier   String    @unique @db.VarChar(100)
+  name         String    @db.VarChar(150)
+  utcOffset    String    @db.VarChar(10)
+  observesDst  Boolean   @default(false)
+  countryId    String?   @db.Uuid
+  status RecordStatus @default(ACTIVE)
+  metadata     Json?
+  abbreviation String?   @db.VarChar(20)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  country Country? @relation(fields: [countryId], references: [id], onDelete: SetNull)
+
+  @@index([countryId, status])
+}
+
+model TaxCategory {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(50)
+  name        String    @db.VarChar(120)
+  description String?
+  status RecordStatus @default(ACTIVE)
+  sortOrder   Int       @default(0)
+  metadata    Json?
+  taxType     String?   @db.VarChar(50)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  taxRates TaxRate[]
+}
+
+model TaxRate {
+  id            String    @id @default(uuid()) @db.Uuid
+  taxCategoryId String    @db.Uuid
+  countryId     String    @db.Uuid
+  stateId       String?   @db.Uuid
+  rate          Decimal   @db.Decimal(12, 4)
+  type          RateType  @default(PERCENTAGE)
+  fixedAmount   Decimal?  @db.Decimal(18, 4)
+  currencyCode  String?   @db.VarChar(3)
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+  status RecordStatus @default(ACTIVE)
+  metadata      Json?
+  isCompound    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  taxCategory TaxCategory @relation(fields: [taxCategoryId], references: [id], onDelete: Restrict)
+  country     Country     @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  state       State?      @relation(fields: [stateId], references: [id], onDelete: SetNull)
+
+  @@index([countryId, stateId, taxCategoryId])
+  @@index([effectiveFrom, effectiveTo])
+}
+
+model MasterRecord {
+  id          String      @id @default(uuid()) @db.Uuid
+  tenantId    String?     @db.Uuid
+  scope       MasterScope @default(GLOBAL)
+  code        String      @db.VarChar(80)
+  name        String      @db.VarChar(160)
+  slug        String?     @db.VarChar(200)
+  description String?
+  icon        String?
+  color       String?
+  isFinal     Boolean     @default(false)
+  isDefault   Boolean     @default(false)
+  sortOrder   Int         @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+
+  @@unique([tenantId, code])
+  @@unique([tenantId, slug])
+  @@index([tenantId, scope, status, sortOrder])
+  @@index([code, status])
+}
+
+// ============================================================
+// COMMERCE MASTERS
+// ============================================================
+
+model ProductType {
+  id               String    @id @default(uuid()) @db.Uuid
+  tenantId         String?   @db.Uuid
+  code             String    @db.VarChar(80)
+  name             String    @db.VarChar(120)
+  description      String?
+  status RecordStatus @default(ACTIVE)
+  sortOrder        Int       @default(0)
+  metadata         Json?
+  slug             String?   @unique @db.VarChar(160)
+  requiresShipping Boolean   @default(false)
+  isDigital        Boolean   @default(false)
+  allowsVariants   Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  @@unique([tenantId, code])
+  @@index([tenantId, status, sortOrder])
+}
+
+model AttributeType {
+  id                 String    @id @default(uuid()) @db.Uuid
+  tenantId           String?   @db.Uuid
+  code               String    @db.VarChar(80)
+  name               String    @db.VarChar(120)
+  description        String?
+  status RecordStatus @default(ACTIVE)
+  sortOrder          Int       @default(0)
+  metadata           Json?
+  dataType           String    @default("TEXT") @db.VarChar(50)
+  isVariantAttribute Boolean   @default(false)
+  isFilterable       Boolean   @default(false)
+  isSearchable       Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
+
+  @@unique([tenantId, code])
+}
+
+model UnitType {
+  id          String    @id @default(uuid()) @db.Uuid
+  tenantId    String?   @db.Uuid
+  code        String    @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  icon        String?
+  status RecordStatus @default(ACTIVE)
+  sortOrder   Int       @default(0)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  units Unit[]
+
+  @@unique([tenantId, code])
+}
+
+model Unit {
+  id               String    @id @default(uuid()) @db.Uuid
+  tenantId         String?   @db.Uuid
+  unitTypeId       String?   @db.Uuid
+  code             String    @db.VarChar(50)
+  name             String    @db.VarChar(100)
+  symbol           String    @db.VarChar(20)
+  description      String?
+  conversionToBase Decimal?  @db.Decimal(20, 10)
+  status RecordStatus @default(ACTIVE)
+  sortOrder        Int       @default(0)
+  metadata         Json?
+  isBaseUnit       Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+
+  unitType UnitType? @relation(fields: [unitTypeId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, code])
+  @@index([unitTypeId, status])
+}
+
+model WeightUnit {
+  id               String    @id @default(uuid()) @db.Uuid
+  code             String    @unique @db.VarChar(30)
+  name             String    @db.VarChar(80)
+  symbol           String    @db.VarChar(15)
+  conversionToBase Decimal   @db.Decimal(20, 10)
+  description      String?
+  status RecordStatus @default(ACTIVE)
+  metadata         Json?
+  isBaseUnit       Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+}
+
+model DimensionUnit {
+  id               String    @id @default(uuid()) @db.Uuid
+  code             String    @unique @db.VarChar(30)
+  name             String    @db.VarChar(80)
+  symbol           String    @db.VarChar(15)
+  conversionToBase Decimal   @db.Decimal(20, 10)
+  description      String?
+  status RecordStatus @default(ACTIVE)
+  metadata         Json?
+  isBaseUnit       Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+}
+
+model VolumeUnit {
+  id               String    @id @default(uuid()) @db.Uuid
+  code             String    @unique @db.VarChar(30)
+  name             String    @db.VarChar(80)
+  symbol           String?   @db.VarChar(15)
+  conversionToBase Decimal   @default(1) @db.Decimal(20, 10)
+  description      String?
+  status RecordStatus @default(ACTIVE)
+  metadata         Json?
+  isBaseUnit       Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+}
+
+model CustomerStatusMaster {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model AddressType {
+  id                String    @id @default(uuid()) @db.Uuid
+  code              String    @unique @db.VarChar(80)
+  name              String    @db.VarChar(120)
+  description       String?
+  status RecordStatus @default(ACTIVE)
+  sortOrder         Int       @default(0)
+  metadata          Json?
+  isBillingAllowed  Boolean   @default(false)
+  isShippingAllowed Boolean   @default(false)
+  requiresContact   Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+}
+
+model BusinessType {
+  id                           String    @id @default(uuid()) @db.Uuid
+  code                         String    @unique @db.VarChar(80)
+  name                         String    @db.VarChar(120)
+  description                  String?
+  status RecordStatus @default(ACTIVE)
+  sortOrder                    Int       @default(0)
+  metadata                     Json?
+  requiresTaxId                Boolean   @default(false)
+  requiresBusinessRegistration Boolean   @default(false)
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+  deletedAt                    DateTime?
+}
+
+model Industry {
+  id            String     @id @default(uuid()) @db.Uuid
+  code          String     @unique @db.VarChar(80)
+  name          String     @db.VarChar(160)
+  slug          String     @unique @db.VarChar(180)
+  description   String?
+  icon          String?
+  sortOrder     Int        @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata      Json?
+  parentId      String?    @db.Uuid
+  parent        Industry?  @relation("IndustryHierarchy", fields: [parentId], references: [id])
+  subIndustries Industry[] @relation("IndustryHierarchy")
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+}
+
+model ProductStatusMaster {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  isFinal     Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model CatalogVisibility {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  isFinal     Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model DiscountType {
+  id          String    @id @default(uuid()) @db.Uuid
+  tenantId    String?   @db.Uuid
+  code        String    @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  icon        String?
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@unique([tenantId, code])
+}
+
+model CouponStatusMaster {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  isFinal     Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model ReviewStatus {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  icon        String?
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model ContactType {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+// ============================================================
+// ORDER / PAYMENT / FULFILLMENT MASTERS
+// ============================================================
+
+model OrderStatusMaster {
+  id                String    @id @default(uuid()) @db.Uuid
+  code              String    @unique @db.VarChar(80)
+  name              String    @db.VarChar(120)
+  description       String?
+  color             String?
+  isFinal           Boolean   @default(false)
+  sortOrder         Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata          Json?
+  isCustomerVisible Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+}
+
+model OrderSource {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model PaymentStatusMaster {
+  id           String    @id @default(uuid()) @db.Uuid
+  code         String    @unique @db.VarChar(80)
+  name         String    @db.VarChar(120)
+  description  String?
+  color        String?
+  isFinal      Boolean   @default(false)
+  sortOrder    Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata     Json?
+  isSuccessful Boolean   @default(false)
+  allowsRefund Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+}
+
+model PaymentMethodMaster {
+  id                     String    @id @default(uuid()) @db.Uuid
+  code                   String    @unique @db.VarChar(80)
+  name                   String    @db.VarChar(120)
+  description            String?
+  color                  String?
+  isFinal                Boolean   @default(false)
+  sortOrder              Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata               Json?
+  methodType             String?   @db.VarChar(50)
+  requiresGateway        Boolean   @default(false)
+  supportsRefund         Boolean   @default(false)
+  supportsPartialPayment Boolean   @default(false)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  deletedAt              DateTime?
+}
+
+model PaymentProviderMaster {
+  id                    String    @id @default(uuid()) @db.Uuid
+  code                  String    @unique @db.VarChar(80)
+  name                  String    @db.VarChar(120)
+  description           String?
+  color                 String?
+  isFinal               Boolean   @default(false)
+  sortOrder             Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata              Json?
+  slug                  String?   @unique @db.VarChar(160)
+  website               String?
+  supportsCards         Boolean   @default(false)
+  supportsUPI           Boolean   @default(false)
+  supportsWallets       Boolean   @default(false)
+  supportsRefunds       Boolean   @default(false)
+  supportsSubscriptions Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+}
+
+model FulfillmentStatusMaster {
+  id                String    @id @default(uuid()) @db.Uuid
+  code              String    @unique @db.VarChar(80)
+  name              String    @db.VarChar(120)
+  description       String?
+  color             String?
+  isFinal           Boolean   @default(false)
+  sortOrder         Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata          Json?
+  isCustomerVisible Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+}
+
+model FulfillmentType {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  isFinal     Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model ShippingStatusMaster {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  isFinal     Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model ShippingMethodMaster {
+  id                 String  @id @default(uuid()) @db.Uuid
+  code               String  @unique @db.VarChar(80)
+  name               String  @db.VarChar(120)
+  description        String?
+  icon               String?
+  sortOrder          Int     @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata           Json?
+  shippingProviderId String? @db.Uuid
+  deliveryType       String? @db.VarChar(50)
+  estimatedMinDays   Int?
+  estimatedMaxDays   Int?
+  trackingSupported  Boolean @default(false)
+
+  shippingProvider ShippingProviderMaster? @relation(fields: [shippingProviderId], references: [id])
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  deletedAt        DateTime?
+}
+
+model ShippingPackageType {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  isFinal     Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model ReturnStatusMaster {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  isFinal     Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model CancellationReason {
+  id              String    @id @default(uuid()) @db.Uuid
+  code            String    @unique @db.VarChar(80)
+  name            String    @db.VarChar(120)
+  description     String?
+  sortOrder       Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata        Json?
+  reasonType      String?   @db.VarChar(50)
+  requiresComment Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+}
+
+model ReturnReason {
+  id               String    @id @default(uuid()) @db.Uuid
+  code             String    @unique @db.VarChar(80)
+  name             String    @db.VarChar(120)
+  description      String?
+  sortOrder        Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata         Json?
+  reasonType       String?   @db.VarChar(50)
+  requiresEvidence Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+}
+
+model InventoryStatusMaster {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  isFinal     Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model InventoryTransactionType {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  isFinal     Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+// ============================================================
+// NOTIFICATION / MEDIA / DOCUMENT / TENANT / BILLING MASTERS
+// ============================================================
+
+model MediaType {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  isFinal     Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model FileType {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  icon        String?
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model NotificationStatus {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  isFinal     Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model FiscalDocumentType {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  isFinal     Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model DocumentStatus {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  color       String?
+  isFinal     Boolean   @default(false)
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model BillingCycle {
+  id             String    @id @default(uuid()) @db.Uuid
+  tenantId       String?   @db.Uuid
+  code           String    @db.VarChar(80)
+  name           String    @db.VarChar(120)
+  description    String?
+  interval       String    @db.VarChar(30)
+  intervalCount  Int       @default(1)
+  status RecordStatus @default(ACTIVE)
+  sortOrder      Int       @default(0)
+  metadata       Json?
+  trialSupported Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  @@unique([tenantId, code])
+}
+
+model TenantStatusMaster {
+  id            String    @id @default(uuid()) @db.Uuid
+  tenantId      String?   @db.Uuid
+  code          String    @db.VarChar(80)
+  name          String    @db.VarChar(120)
+  description   String?
+  color         String?
+  isDefault     Boolean   @default(false)
+  status RecordStatus @default(ACTIVE)
+  sortOrder     Int       @default(0)
+  metadata      Json?
+  isOperational Boolean   @default(false)
+  allowsLogin   Boolean   @default(false)
+  allowsBilling Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@unique([tenantId, code])
+}
+
+model SubscriptionStatusMaster {
+  id            String    @id @default(uuid()) @db.Uuid
+  tenantId      String?   @db.Uuid
+  code          String    @db.VarChar(80)
+  name          String    @db.VarChar(120)
+  description   String?
+  color         String?
+  isDefault     Boolean   @default(false)
+  status RecordStatus @default(ACTIVE)
+  sortOrder     Int       @default(0)
+  metadata      Json?
+  isActiveState Boolean   @default(false)
+  allowsRenewal Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@unique([tenantId, code])
+}
+
+model PlanTier {
+  id           String   @id @default(uuid()) @db.Uuid
+  tenantId     String?  @db.Uuid
+  code         String   @db.VarChar(80)
+  name         String   @db.VarChar(120)
+  description  String?
+  monthlyPrice Decimal? @db.Decimal(18, 2)
+  yearlyPrice  Decimal? @db.Decimal(18, 2)
+  features     Json?
+  isPopular    Boolean  @default(false)
+  status RecordStatus @default(ACTIVE)
+  sortOrder    Int      @default(0)
+  metadata     Json?
+  slug         String?  @unique @db.VarChar(160)
+  planTypeId   String?  @db.Uuid
+  currencyId   String?  @db.Uuid
+  trialDays    Int      @default(0)
+  maxStores    Int      @default(-1)
+  maxUsers     Int      @default(-1)
+  maxProducts  Int      @default(-1)
+  maxOrders    Int      @default(-1)
+  maxStorageGB Decimal  @default(-1) @db.Decimal(10, 2)
+  maxDomains   Int      @default(-1)
+  isPublic     Boolean  @default(true)
+
+  planType  PlanType? @relation(fields: [planTypeId], references: [id])
+  currency  Currency? @relation(fields: [currencyId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  tenants   Tenant[]
+
+  @@unique([tenantId, code])
+}
+
+model IntegrationCategoryMaster {
+  id          String    @id @default(uuid()) @db.Uuid
+  tenantId    String?   @db.Uuid
+  code        String    @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  icon        String?
+  status RecordStatus @default(ACTIVE)
+  sortOrder   Int       @default(0)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@unique([tenantId, code])
+}
+
+model PhoneCountryCode {
+  id            String    @id @default(uuid()) @db.Uuid
+  countryId     String?   @unique @db.Uuid
+  iso2          String    @unique @db.VarChar(2)
+  name          String    @db.VarChar(100)
+  dialCode      String    @db.VarChar(10)
+  flag          String?   @db.VarChar(10)
+  status RecordStatus @default(ACTIVE)
+  minLength     Int?
+  maxLength     Int?
+  exampleNumber String?   @db.VarChar(50)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  country Country? @relation(fields: [countryId], references: [id], onDelete: Cascade)
+}
+
+model Region {
+  id          String    @id @default(uuid()) @db.Uuid
+  countryId   String    @db.Uuid
+  code        String    @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  description String?
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  country Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@index([countryId])
+}
+
+model DateFormat {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  format      String    @db.VarChar(50)
+  example     String?   @db.VarChar(50)
+  locale      String?   @db.VarChar(20)
+  isDefault   Boolean   @default(false)
+  description String?
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model TimeFormat {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  format      String    @db.VarChar(50)
+  example     String?   @db.VarChar(50)
+  hourCycle   String?   @db.VarChar(10)
+  isDefault   Boolean   @default(false)
+  description String?
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model ShippingProviderMaster {
+  id                    String    @id @default(uuid()) @db.Uuid
+  code                  String    @unique @db.VarChar(80)
+  name                  String    @db.VarChar(120)
+  slug                  String    @unique @db.VarChar(180)
+  website               String?
+  trackingUrl           String?
+  supportsTracking      Boolean   @default(false)
+  supportsPickup        Boolean   @default(false)
+  supportsInternational Boolean   @default(false)
+  description           String?
+  status RecordStatus @default(ACTIVE)
+  metadata              Json?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+
+  shippingMethods ShippingMethodMaster[]
+}
+
+model StoreType {
+  id            String    @id @default(uuid()) @db.Uuid
+  code          String    @unique @db.VarChar(80)
+  name          String    @db.VarChar(120)
+  slug          String    @unique @db.VarChar(160)
+  businessModel String?   @db.VarChar(50)
+  description   String?
+  sortOrder     Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata      Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+}
+
+model ThemeCategory {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  slug        String    @unique @db.VarChar(160)
+  parentId    String?   @db.Uuid
+  icon        String?
+  description String?
+  sortOrder   Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  parent        ThemeCategory?  @relation("ThemeCategoryHierarchy", fields: [parentId], references: [id])
+  subCategories ThemeCategory[] @relation("ThemeCategoryHierarchy")
+}
+
+model NotificationChannelMaster {
+  id               String    @id @default(uuid()) @db.Uuid
+  code             String    @unique @db.VarChar(80)
+  name             String    @db.VarChar(120)
+  channelType      String?   @db.VarChar(50)
+  supportsTemplate Boolean   @default(false)
+  description      String?
+  status RecordStatus @default(ACTIVE)
+  metadata         Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
+}
+
+model NotificationTypeMaster {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  eventType   String    @db.VarChar(100)
+  priority    String    @default("NORMAL") @db.VarChar(20)
+  description String?
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model IntegrationTypeMaster {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  category    String?   @db.VarChar(50)
+  authType    String?   @db.VarChar(50)
+  description String?
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model WebhookEventTypeMaster {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique @db.VarChar(80)
+  name        String    @db.VarChar(120)
+  eventGroup  String    @db.VarChar(50)
+  resource    String    @db.VarChar(50)
+  action      String    @db.VarChar(50)
+  description String?
+  status RecordStatus @default(ACTIVE)
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model PlanType {
+  id           String    @id @default(uuid()) @db.Uuid
+  code         String    @unique @db.VarChar(80)
+  name         String    @db.VarChar(120)
+  billingModel String?   @db.VarChar(50)
+  description  String?
+  sortOrder    Int       @default(0)
+  status RecordStatus @default(ACTIVE)
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  planTiers PlanTier[]
+}
+
+
+// --- Unified Notification Service Models ---
+model NotificationProvider {
+  id          String   @id @default(uuid())
+  tenantId    String?  
+  channel     String   // EMAIL, SMS, WHATSAPP
+  code        String   // RESEND, TWILIO, MSG91, SES, META
+  name        String
+  credentials String   @db.Text 
+  isPrimary   Boolean  @default(false)
+  status      RecordStatus @default(ACTIVE)
+  tenant      Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([channel])
+}
+
+model NotificationSettings {
+  id                      String   @id @default(uuid())
+  tenantId                String   @unique
+  emailEnabled            Boolean  @default(true)
+  smsEnabled              Boolean  @default(false)
+  whatsappEnabled         Boolean  @default(false)
+  
+  primaryEmailProviderId  String?
+  fallbackEmailProviderId String?
+  
+  primarySmsProviderId    String?
+  fallbackSmsProviderId   String?
+  
+  primaryWaProviderId     String?
+  fallbackWaProviderId    String?
+  
+  defaultFromEmail        String?
+  defaultFromName         String?
+  defaultReplyTo          String?
+  
+  tenant                  Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model NotificationLog {
+  id                String   @id @default(uuid())
+  tenantId          String
+  channel           String   
+  providerCode      String   
+  eventType         String?  
+  templateId        String?
+  recipient         String
+  subject           String?
+  status            String   
+  attempts          Int      @default(0)
+  providerMessageId String?  
+  errorCode         String?
+  errorMessage      String?  @db.Text
+  metadata          Json?
+  
+  queuedAt          DateTime @default(now())
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  failedAt          DateTime?
+  
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([providerMessageId])
+}
+
+
+model NotificationWebhook {
+  id                String   @id @default(uuid())
+  providerCode      String
+  providerMessageId String
+  status            String
+  rawPayload        Json
+  createdAt         DateTime @default(now())
+  
+  @@index([providerMessageId])
+}
+
+
+
+model NotificationPreference {
+  id             String   @id @default(uuid())
+  tenantId       String
+  userId         String?
+  customerId     String?
+  channel        String   
+  category       String   
+  isOptedIn      Boolean  @default(true)
+  
+  user           User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customer       Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tenant         Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([tenantId, customerId])
+  @@index([tenantId, userId])
+}
+

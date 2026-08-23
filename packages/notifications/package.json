@@ -9,6 +9,13 @@
     "lint": "echo 'No lint specified'"
   },
   "devDependencies": {
-    "@types/node": "^22.13.5"
+    "@types/handlebars": "^4.0.40",
+    "@types/node": "^22.13.5",
+    "@types/nodemailer": "^8.0.1"
+  },
+  "dependencies": {
+    "handlebars": "^4.7.9",
+    "nodemailer": "^9.0.5",
+    "zod": "^3.25.76"
   }
 }

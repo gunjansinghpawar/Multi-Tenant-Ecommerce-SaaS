@@ -18,6 +18,7 @@ import { ordersRouter } from './admin/orders';
 import { customersRouter } from './admin/customers';
 import { themesRouter } from './admin/themes';
 import { analyticsRouter } from './admin/analytics';
+import { notificationsApi } from './admin/notifications';
 
 // --- Platform / Super Admin Routers ---
 import { tenantsRouter } from './platform/tenants';
@@ -43,6 +44,7 @@ admin.route('/orders', ordersRouter);
 admin.route('/customers', customersRouter);
 admin.route('/themes', themesRouter);
 admin.route('/analytics', analyticsRouter);
+admin.route('/notifications', notificationsApi);
 apiV1.route('/admin', admin);
 
 // --- 3. SUPER ADMIN API (/api/v1/platform) ---

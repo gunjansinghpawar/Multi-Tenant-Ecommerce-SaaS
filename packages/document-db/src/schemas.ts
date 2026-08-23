@@ -69,3 +69,61 @@ const BuilderBlockSchema: Schema = new Schema({
 }, { timestamps: true });
 
 export const BuilderBlockModel = mongoose.models.BuilderBlock || mongoose.model<IBuilderBlock>('BuilderBlock', BuilderBlockSchema);
+
+// 4. AI-Generated Content Schema
+export interface IAIGeneratedContent extends Document {
+  tenantId: string;
+  provider: string; // e.g., 'openai', 'anthropic'
+  prompt: string;
+  output: any; // Dynamic JSON or text
+  context?: any;
+}
+
+const AIGeneratedContentSchema: Schema = new Schema({
+  tenantId: { type: String, required: true, index: true },
+  provider: { type: String, required: true },
+  prompt: { type: String, required: true },
+  output: { type: Schema.Types.Mixed, required: true },
+  context: { type: Schema.Types.Mixed }
+}, { timestamps: true });
+
+export const AIGeneratedContentModel = mongoose.models.AIGeneratedContent || mongoose.model<IAIGeneratedContent>('AIGeneratedContent', AIGeneratedContentSchema);
+
+// 5. Versioned Page Document Schema (Page Revisions)
+export interface IPageRevision extends Document {
+  tenantId: string;
+  pageId: string; // Ref to Postgres Page ID
+  version: number;
+  content: any; // Full snapshot of page structure
+  createdBy: string; // User ID
+}
+
+const PageRevisionSchema: Schema = new Schema({
+  tenantId: { type: String, required: true, index: true },
+  pageId: { type: String, required: true, index: true },
+  version: { type: Number, required: true },
+  content: { type: Schema.Types.Mixed, required: true },
+  createdBy: { type: String, required: true }
+}, { timestamps: true });
+
+// Ensure unique versions per page
+PageRevisionSchema.index({ tenantId: 1, pageId: 1, version: 1 }, { unique: true });
+
+export const PageRevisionModel = mongoose.models.PageRevision || mongoose.model<IPageRevision>('PageRevision', PageRevisionSchema);
+
+// 6. Complex Non-Relational Configuration Schema
+export interface IFlexibleConfig extends Document {
+  tenantId: string;
+  key: string;
+  value: any; // Deeply nested JSON config
+}
+
+const FlexibleConfigSchema: Schema = new Schema({
+  tenantId: { type: String, required: true, index: true },
+  key: { type: String, required: true },
+  value: { type: Schema.Types.Mixed, required: true }
+}, { timestamps: true });
+
+FlexibleConfigSchema.index({ tenantId: 1, key: 1 }, { unique: true });
+
+export const FlexibleConfigModel = mongoose.models.FlexibleConfig || mongoose.model<IFlexibleConfig>('FlexibleConfig', FlexibleConfigSchema);

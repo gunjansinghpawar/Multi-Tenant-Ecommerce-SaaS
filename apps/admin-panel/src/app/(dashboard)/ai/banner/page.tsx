@@ -81,8 +81,8 @@ export default function AIBannerPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <RHFInput name="campaignGoal" label="Campaign Goal" placeholder="e.g. Sell summer apparel, clear inventory" />
-                <RHFInput name="offer" label="Specific Offer (Optional)" placeholder="e.g. 50% Off Everything, Buy 1 Get 1 Free" />
+                <RHFInput name="campaignGoal" label="Campaign Goal" inputProps={{ placeholder: "e.g. Sell summer apparel, clear inventory" }} />
+                <RHFInput name="offer" label="Specific Offer (Optional)" inputProps={{ placeholder: "e.g. 50% Off Everything, Buy 1 Get 1 Free" }} />
                 
                 <RHFSelect 
                   name="brandVoice" 

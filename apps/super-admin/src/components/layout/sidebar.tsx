@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  LayoutDashboardIcon, 
-  UsersIcon, 
-  SettingsIcon, 
-  ShieldIcon, 
-  ActivityIcon, 
-  CreditCardIcon, 
-  BookIcon, 
+import {
+  LayoutDashboardIcon,
+  UsersIcon,
+  SettingsIcon,
+  ShieldIcon,
+  ActivityIcon,
+  CreditCardIcon,
+  BookIcon,
   LifeBuoyIcon,
   FingerprintIcon,
   StoreIcon,
@@ -27,13 +27,14 @@ import {
   ShieldCheckIcon,
   UserCheckIcon,
   SearchIcon,
-  LayersIcon
+  LayersIcon,
+  BellDotIcon
 } from "lucide-react";
-import { 
-  AppSidebar, 
-  SidebarGroup, 
-  SidebarItem, 
-  SidebarSearch, 
+import {
+  AppSidebar,
+  SidebarGroup,
+  SidebarItem,
+  SidebarSearch,
   SidebarCollapsible,
   useSidebar
 } from "@commercex/ui";
@@ -51,6 +52,7 @@ const commerceNav = [
   { id: "billing", name: "Billing & Invoices", href: "/billing", icon: CreditCardIcon },
   { id: "analytics", name: "Global Analytics", href: "/analytics", icon: TrendingUpIcon },
   { id: "reports", name: "Reports & Exports", href: "/reports", icon: FileTextIcon },
+  { id: "notification", name: "Notification Center", href: "/notifications", icon: BellDotIcon },
 ];
 
 const marketplaceNav = [
@@ -58,6 +60,84 @@ const marketplaceNav = [
   { id: "plugins", name: "Plugin Marketplace", href: "/plugins", icon: PuzzleIcon },
   { id: "feature-flags", name: "Feature Flags", href: "/feature-flags", icon: FlagIcon },
   { id: "api-keys", name: "API Keys", href: "/api-keys", icon: KeyIcon },
+];
+
+const mastersNavGroups = [
+  {
+    title: "Geography", icon: DatabaseIcon, items: [
+      { id: "masters-continents", name: "Continents", href: "/masters/continents" },
+      { id: "masters-countries", name: "Countries", href: "/masters/countries" },
+      { id: "masters-states", name: "States", href: "/masters/states" },
+      { id: "masters-cities", name: "Cities", href: "/masters/cities" },
+      { id: "masters-regions", name: "Regions", href: "/masters/regions" },
+      { id: "masters-phone-country-codes", name: "Phone Country Codes", href: "/masters/phone-country-codes" },
+    ]
+  },
+  {
+    title: "Localization", icon: DatabaseIcon, items: [
+      { id: "masters-currencies", name: "Currencies", href: "/masters/currencies" },
+      { id: "masters-languages", name: "Languages", href: "/masters/languages" },
+      { id: "masters-timezones", name: "Timezones", href: "/masters/timezones" },
+      { id: "masters-date-formats", name: "Date Formats", href: "/masters/date-formats" },
+      { id: "masters-time-formats", name: "Time Formats", href: "/masters/time-formats" },
+    ]
+  },
+  {
+    title: "Taxation", icon: DatabaseIcon, items: [
+      { id: "masters-tax-categories", name: "Tax Categories", href: "/masters/tax-categories" },
+      { id: "masters-tax-rates", name: "Tax Rates", href: "/masters/tax-rates" },
+    ]
+  },
+  {
+    title: "Products", icon: DatabaseIcon, items: [
+      { id: "masters-product-types", name: "Product Types", href: "/masters/product-types" },
+      { id: "masters-product-statuses", name: "Product Statuses", href: "/masters/product-statuses" },
+      { id: "masters-attribute-types", name: "Attribute Types", href: "/masters/attribute-types" },
+      { id: "masters-units", name: "Units", href: "/masters/units" },
+      { id: "masters-weight-units", name: "Weight Units", href: "/masters/weight-units" },
+      { id: "masters-dimension-units", name: "Dimension Units", href: "/masters/dimension-units" },
+    ]
+  },
+  {
+    title: "Customers & Address", icon: DatabaseIcon, items: [
+      { id: "masters-customer-statuses", name: "Customer Statuses", href: "/masters/customer-statuses" },
+      { id: "masters-address-types", name: "Address Types", href: "/masters/address-types" },
+      { id: "masters-business-types", name: "Business Types", href: "/masters/business-types" },
+      { id: "masters-industries", name: "Industries", href: "/masters/industries" },
+    ]
+  },
+  {
+    title: "Orders", icon: DatabaseIcon, items: [
+      { id: "masters-order-statuses", name: "Order Statuses", href: "/masters/order-statuses" },
+      { id: "masters-payment-statuses", name: "Payment Statuses", href: "/masters/payment-statuses" },
+      { id: "masters-fulfillment-statuses", name: "Fulfillment Statuses", href: "/masters/fulfillment-statuses" },
+      { id: "masters-cancellation-reasons", name: "Cancellation Reasons", href: "/masters/cancellation-reasons" },
+      { id: "masters-return-reasons", name: "Return Reasons", href: "/masters/return-reasons" },
+    ]
+  },
+  {
+    title: "Shipping & Payment", icon: DatabaseIcon, items: [
+      { id: "masters-shipping-methods", name: "Shipping Methods", href: "/masters/shipping-methods" },
+      { id: "masters-shipping-providers", name: "Shipping Providers", href: "/masters/shipping-providers" },
+      { id: "masters-payment-methods", name: "Payment Methods", href: "/masters/payment-methods" },
+      { id: "masters-payment-providers", name: "Payment Providers", href: "/masters/payment-providers" },
+    ]
+  },
+  {
+    title: "Integrations", icon: DatabaseIcon, items: [
+      { id: "masters-integration-types", name: "Integration Types", href: "/masters/integration-types" },
+      { id: "masters-integration-categories", name: "Integration Categories", href: "/masters/integration-categories" },
+    ]
+  },
+  {
+    title: "SaaS & Tenants", icon: DatabaseIcon, items: [
+      { id: "masters-tenant-statuses", name: "Tenant Statuses", href: "/masters/tenant-statuses" },
+      { id: "masters-subscription-statuses", name: "Subscription Statuses", href: "/masters/subscription-statuses" },
+      { id: "masters-plan-types", name: "Plan Types", href: "/masters/plan-types" },
+      { id: "masters-plan-tiers", name: "Plan Tiers", href: "/masters/plan-tiers" },
+      { id: "masters-billing-cycles", name: "Billing Cycles", href: "/masters/billing-cycles" },
+    ]
+  }
 ];
 
 const operationsNav = [
@@ -90,23 +170,24 @@ export function Sidebar() {
   const { pinnedItems, favoriteItems } = useSidebar();
 
   const allNav = [
-    ...mainNav, 
-    ...commerceNav, 
-    ...marketplaceNav, 
-    ...operationsNav, 
-    ...monitoringNav, 
+    ...mainNav,
+    ...commerceNav,
+    ...marketplaceNav,
+    ...mastersNavGroups.flatMap(group => group.items),
+    ...operationsNav,
+    ...monitoringNav,
     ...platformNav
   ];
-  
+
   // Filter for Search
   const filteredNav = allNav.filter(item => item.name.toLowerCase().includes(search.toLowerCase()));
-  
+
   // Resolve Pins & Favorites
   const pins = allNav.filter(item => pinnedItems.includes(item.id));
   const favorites = allNav.filter(item => favoriteItems.includes(item.id));
 
   return (
-    <AppSidebar 
+    <AppSidebar
       logo={
         <>
           <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-primary text-primary-foreground">
@@ -152,13 +233,23 @@ export function Sidebar() {
             {marketplaceNav.map(item => <SidebarItem key={item.id} {...item} />)}
           </SidebarGroup>
 
-          <SidebarCollapsible title="Operations & Security" icon={ShieldCheckIcon}>
-            {operationsNav.map(item => <SidebarItem key={item.id} {...item} isNested />)}
-          </SidebarCollapsible>
+          <SidebarGroup title="Master Data Management">
+            {mastersNavGroups.map(group => (
+              <SidebarCollapsible key={group.title} title={group.title} icon={group.icon}>
+                {group.items.map(item => <SidebarItem key={item.id} {...item} isNested />)}
+              </SidebarCollapsible>
+            ))}
+          </SidebarGroup>
 
-          <SidebarCollapsible title="Infrastructure & Health" icon={ServerIcon}>
-            {monitoringNav.map(item => <SidebarItem key={item.id} {...item} isNested />)}
-          </SidebarCollapsible>
+          <SidebarGroup title="System & Ops">
+            <SidebarCollapsible title="Operations & Security" icon={ShieldCheckIcon}>
+              {operationsNav.map(item => <SidebarItem key={item.id} {...item} isNested />)}
+            </SidebarCollapsible>
+
+            <SidebarCollapsible title="Infrastructure & Health" icon={ServerIcon}>
+              {monitoringNav.map(item => <SidebarItem key={item.id} {...item} isNested />)}
+            </SidebarCollapsible>
+          </SidebarGroup>
 
           <SidebarGroup title="Platform & Settings">
             {platformNav.map(item => <SidebarItem key={item.id} {...item} />)}

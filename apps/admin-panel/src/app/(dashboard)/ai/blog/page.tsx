@@ -85,9 +85,9 @@ Thanks for reading! Stay tuned for more updates on ${values.topic}.`);
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <RHFInput name="topic" label="Main Topic or Title" placeholder="e.g. 5 Benefits of Organic Skincare" />
+                <RHFInput name="topic" label="Main Topic or Title" inputProps={{ placeholder: "e.g. 5 Benefits of Organic Skincare" }} />
                 
-                <RHFInput name="keywords" label="Target Keywords (Comma separated)" placeholder="e.g. organic skincare, natural ingredients" />
+                <RHFInput name="keywords" label="Target Keywords (Comma separated)" inputProps={{ placeholder: "e.g. organic skincare, natural ingredients" }} />
                 
                 <RHFSelect 
                   name="length" 

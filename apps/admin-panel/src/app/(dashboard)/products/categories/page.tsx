@@ -109,7 +109,7 @@ export default function CategoriesPage() {
           draggedNode = nodes.splice(i, 1)[0];
           return true;
         }
-        if (nodes[i].children && removeNode(nodes[i].children)) {
+        if (nodes[i].children && removeNode(nodes[i].children!)) {
           return true;
         }
       }
@@ -121,10 +121,10 @@ export default function CategoriesPage() {
       for (let i = 0; i < nodes.length; i++) {
         if (nodes[i].id === targetId) {
           if (!nodes[i].children) nodes[i].children = [];
-          nodes[i].children.push(draggedNode!);
+          nodes[i].children!.push(draggedNode!);
           return true;
         }
-        if (nodes[i].children && insertNode(nodes[i].children)) {
+        if (nodes[i].children && insertNode(nodes[i].children!)) {
           return true;
         }
       }

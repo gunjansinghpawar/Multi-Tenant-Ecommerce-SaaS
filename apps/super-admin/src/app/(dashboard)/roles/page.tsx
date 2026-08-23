@@ -13,7 +13,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  Skeleton
+  Skeleton,
+  useToast
 } from "@commercex/ui";
 import { 
   ShieldIcon, 
@@ -32,6 +33,7 @@ import {
   updateRolePermissionsAction,
   deleteRoleAction
 } from "../../../actions/role.actions";
+import { seedDefaultsAction } from "../../../actions/seed.actions";
 
 type PermissionRow = { id: string; key: string; name: string; description: string | null; category: string };
 type RoleRow = {
@@ -39,11 +41,12 @@ type RoleRow = {
   name: string;
   description: string | null;
   isSystem: boolean;
-  _count: { users: number };
+  _count: { users?: number; platformUsers?: number };
   permissions: { permission: PermissionRow }[];
 };
 
 export default function RolesPage() {
+  const { toast } = useToast();
   const [roles, setRoles] = useState<RoleRow[]>([]);
   const [permissionsByCategory, setPermissionsByCategory] = useState<Record<string, PermissionRow[]>>({});
   const [activeRoleId, setActiveRoleId] = useState<string | null>(null);
@@ -55,11 +58,12 @@ export default function RolesPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [seeding, setSeeding] = useState(false);
 
   // ── Load data ─────────────────────────────────────────────
   const loadData = useCallback(async () => {
     const [rolesResult, permsResult] = await Promise.all([
-      getRolesAction(),
+      getRolesAction('PLATFORM' as any),
       getPermissionsByCategoryAction()
     ]);
     
@@ -117,6 +121,9 @@ export default function RolesPage() {
     const result = await updateRolePermissionsAction(activeRoleId, selectedIds);
     if (result.success) {
       await loadData();
+      toast({ title: "Permissions updated", description: "Role permissions saved successfully." });
+    } else {
+      toast({ title: "Error", description: "Failed to update permissions.", variant: "destructive" });
     }
     setSaving(false);
   };
@@ -125,7 +132,7 @@ export default function RolesPage() {
   const handleCreate = async () => {
     if (!newRoleName.trim()) return;
     setCreating(true);
-    const result = await createRoleAction({ name: newRoleName, description: newRoleDesc });
+    const result = await createRoleAction({ name: newRoleName, description: newRoleDesc, scope: 'PLATFORM' as any });
     if (result.success && result.data) {
       setIsCreateOpen(false);
       setNewRoleName("");
@@ -133,6 +140,9 @@ export default function RolesPage() {
       await loadData();
       setActiveRoleId((result.data as RoleRow).id);
       setCheckedPermsFromRole(result.data as RoleRow);
+      toast({ title: "Role created", description: "New role created successfully." });
+    } else {
+      toast({ title: "Error", description: "Failed to create role.", variant: "destructive" });
     }
     setCreating(false);
   };
@@ -144,7 +154,19 @@ export default function RolesPage() {
     if (result.success) {
       setActiveRoleId(null);
       await loadData();
+      toast({ title: "Role deleted", description: "Role removed successfully." });
+    } else {
+      toast({ title: "Error", description: "Failed to delete role.", variant: "destructive" });
     }
+  };
+
+  // ── Seed Defaults ─────────────────────────────────────────
+  const handleSeed = async () => {
+    setSeeding(true);
+    await seedDefaultsAction();
+    await loadData();
+    toast({ title: "Defaults seeded", description: "Default roles and permissions created." });
+    setSeeding(false);
   };
 
   // ── Filter roles by search ────────────────────────────────
@@ -187,16 +209,21 @@ export default function RolesPage() {
           <p className="text-muted-foreground mt-1">Configure access control and permissions matrix.</p>
         </div>
         <div className="flex items-center gap-2">
+          {roles.length === 0 && (
+            <Button variant="outline" onClick={handleSeed} disabled={seeding}>
+              {seeding ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : <SaveIcon className="mr-2 h-4 w-4" />} Seed Defaults
+            </Button>
+          )}
           <Button onClick={() => setIsCreateOpen(true)}>
             <PlusIcon className="mr-2 h-4 w-4" /> Create Role
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-12">
+      <div className="grid gap-6 lg:grid-cols-12">
         
         {/* LEFT COLUMN: ROLES LIST */}
-        <div className="md:col-span-4 lg:col-span-3 space-y-4">
+        <div className="lg:col-span-4 xl:col-span-3 space-y-4">
           <div className="relative">
             <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -208,32 +235,36 @@ export default function RolesPage() {
           </div>
           
           <div className="space-y-2">
-            {filteredRoles.map(role => (
+            {filteredRoles.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground bg-card rounded-md border">
+                <p className="text-sm">No roles found.</p>
+              </div>
+            ) : filteredRoles.map(role => (
               <Card 
                 key={role.id} 
                 className={`p-4 cursor-pointer transition-all ${activeRoleId === role.id ? 'border-primary shadow-sm bg-primary/5' : 'hover:border-primary/50'}`}
                 onClick={() => handleSelectRole(role)}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <ShieldIcon className={`h-4 w-4 ${activeRoleId === role.id ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <h3 className="font-semibold">{role.name}</h3>
+                <div className="flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <ShieldIcon className={`h-4 w-4 shrink-0 ${activeRoleId === role.id ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <h3 className="font-semibold truncate" title={role.name}>{role.name}</h3>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    {role.isSystem && <Badge variant="outline" className="text-[10px]">System</Badge>}
-                    <Badge variant="secondary">{role._count.users} Users</Badge>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {role.isSystem && <Badge variant="outline" className="text-[10px] whitespace-nowrap px-1.5">System</Badge>}
+                    <Badge variant="secondary" className="text-[10px] whitespace-nowrap px-1.5">{role._count?.platformUsers || role._count?.users || 0} Users</Badge>
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground line-clamp-2">{role.description}</p>
-                <p className="text-xs text-muted-foreground mt-1">{role.permissions.length} permissions</p>
+                <p className="text-xs text-muted-foreground mt-1">{role.permissions?.length || 0} permissions</p>
               </Card>
             ))}
           </div>
         </div>
 
         {/* RIGHT COLUMN: PERMISSIONS MATRIX */}
-        <div className="md:col-span-8 lg:col-span-9">
-          <Card className="h-full flex flex-col">
+        <div className="lg:col-span-8 xl:col-span-9">
+          <Card className="h-[calc(100vh-140px)] flex flex-col shadow-sm border-muted">
             
             {activeRole ? (
               <>
@@ -255,35 +286,35 @@ export default function RolesPage() {
                   </div>
                 </div>
 
-                <div className="p-6 flex-1 overflow-auto space-y-8">
+                <div className="p-6 flex-1 overflow-auto space-y-10">
                   {Object.entries(permissionsByCategory).map(([categoryName, perms]) => {
                     const isAllSelected = perms.every(p => checkedPerms[p.id]);
                     
                     return (
-                      <div key={categoryName} className="space-y-4">
-                        <div className="flex items-center justify-between border-b border-border pb-2">
-                          <h3 className="text-lg font-semibold">{categoryName}</h3>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-muted-foreground">Select All</span>
+                      <div key={categoryName} className="space-y-5">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border/50 pb-3 gap-3">
+                          <h3 className="text-lg font-bold tracking-tight">{categoryName}</h3>
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm text-muted-foreground font-medium">Select All</span>
                             <Switch 
                               checked={isAllSelected}
                               onCheckedChange={(val) => toggleCategory(categoryName, val)}
                             />
                           </div>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                           {perms.map(perm => (
                             <label 
                               key={perm.id} 
-                              className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${checkedPerms[perm.id] ? 'border-primary bg-primary/5' : 'border-border hover:bg-muted'}`}
+                              className={`relative flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${checkedPerms[perm.id] ? 'border-primary bg-primary/5 shadow-sm' : 'border-border bg-card hover:border-primary/40 hover:bg-muted/30'}`}
                               onClick={() => togglePerm(perm.id)}
                             >
-                              <div className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border ${checkedPerms[perm.id] ? 'border-primary bg-primary text-primary-foreground' : 'border-muted-foreground'}`}>
-                                {checkedPerms[perm.id] && <CheckIcon className="h-3 w-3" />}
+                              <div className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${checkedPerms[perm.id] ? 'border-primary bg-primary text-primary-foreground' : 'border-input bg-background'}`}>
+                                {checkedPerms[perm.id] && <CheckIcon className="h-3.5 w-3.5" />}
                               </div>
-                              <div className="flex flex-col">
-                                <span className="text-sm font-medium leading-none">{perm.name}</span>
-                                <span className="text-xs text-muted-foreground mt-1">{perm.key}</span>
+                              <div className="flex flex-col flex-1 gap-1">
+                                <span className="text-sm font-semibold leading-tight text-foreground">{perm.name}</span>
+                                <span className="text-xs text-muted-foreground">{perm.key}</span>
                               </div>
                             </label>
                           ))}

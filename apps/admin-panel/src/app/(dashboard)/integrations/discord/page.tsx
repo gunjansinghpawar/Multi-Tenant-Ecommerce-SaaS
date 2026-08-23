@@ -53,7 +53,7 @@ export default function DiscordIntegrationPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <RHFInput name="webhookUrl" label="Discord Webhook URL" placeholder="https://discord.com/api/webhooks/..." />
+                <RHFInput name="webhookUrl" label="Discord Webhook URL" inputProps={{ placeholder: "https://discord.com/api/webhooks/..." }} />
                 
                 <div className="space-y-4 pt-4 border-t">
                   <h4 className="text-sm font-medium">Events to Notify</h4>

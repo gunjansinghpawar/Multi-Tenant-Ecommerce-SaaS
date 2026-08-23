@@ -5,10 +5,8 @@
  *   1. Permissions (PostgreSQL)
  *   2. Roles (PostgreSQL) - Platform & Tenant Scopes
  *   3. Role ↔ Permission links (PostgreSQL)
- *   4. Test users (Supabase Auth)
- *   5. User records (PostgreSQL)
- *   6. User ↔ Role links (Platform & Tenant)
- *   7. Demo Tenant + TenantSettings (PostgreSQL)
+ *   4. Super Admin user (Supabase Auth + PostgreSQL)
+ *   5. Global Platform Role for Super Admin
  * 
  * Usage: node scripts/seed.js
  */
@@ -63,6 +61,13 @@ const PERMISSION_DEFINITIONS = [
   // Integrations
   { key: 'integrations.read', name: 'Read Integrations', description: 'View integrations', category: 'Integrations' },
   { key: 'integrations.manage', name: 'Manage Integrations', description: 'Manage integrations', category: 'Integrations' },
+  // Masters
+  { key: 'masters.read', name: 'Read Masters', description: 'View master reference data', category: 'Masters' },
+  { key: 'masters.create', name: 'Create Masters', description: 'Create master data', category: 'Masters' },
+  { key: 'masters.update', name: 'Update Masters', description: 'Update master data', category: 'Masters' },
+  { key: 'masters.delete', name: 'Delete Masters', description: 'Delete master data', category: 'Masters' },
+  { key: 'masters.import', name: 'Import Masters', description: 'Import master data', category: 'Masters' },
+  { key: 'masters.export', name: 'Export Masters', description: 'Export master data', category: 'Masters' },
   // Platform
   { key: 'platform.manage', name: 'Manage Platform', description: 'Super admin platform management', category: 'Platform' }
 ];
@@ -105,13 +110,13 @@ const ROLE_PERMISSION_KEYS = {
   CUSTOM: [],
 };
 
-// ── Test Users ────────────────────────────────────────────
-const TEST_USERS = [
-  { email: 'superadmin@commercex.com', password: 'password123', name: 'Super Admin', role: 'SUPER_ADMIN', tenantId: null },
-  { email: 'owner@commercex.com', password: 'password123', name: 'Store Owner', role: 'OWNER', tenantId: '__DEMO_TENANT__' },
-  { email: 'manager@commercex.com', password: 'password123', name: 'Store Manager', role: 'MANAGER', tenantId: '__DEMO_TENANT__' },
-  { email: 'support@commercex.com', password: 'password123', name: 'Support Rep', role: 'SUPPORT', tenantId: '__DEMO_TENANT__' },
-];
+// ── Super Admin User ────────────────────────────────────────────
+const SUPER_ADMIN = { 
+  email: 'superadmin@commercex.com', 
+  password: 'password123', 
+  name: 'Super Admin', 
+  role: 'SUPER_ADMIN' 
+};
 
 // ── Main Seed Function ────────────────────────────────────
 async function seed() {
@@ -130,7 +135,7 @@ async function seed() {
   }
   
   // 2. Roles
-  console.log('🛡️  Step 2: Seeding roles...');
+  console.log('🛡️  Step 2: Seeding system roles...');
   const roleMap = {};
   for (const rDef of ROLE_DEFINITIONS) {
     const role = await prisma.role.upsert({
@@ -159,101 +164,51 @@ async function seed() {
     }
   }
 
-  // 4. Create Demo Tenant
-  console.log('\n🏪 Step 4: Creating demo tenant...');
-  let demoTenant = await prisma.tenant.findFirst({ where: { slug: 'demo-store' } });
-  if (!demoTenant) {
-    demoTenant = await prisma.tenant.create({
-      data: {
-        name: 'Demo Store',
-        slug: 'demo-store',
-        status: 'ACTIVE',
-        ownerId: 'pending', 
-        settings: {
-          create: {
-            currency: 'USD',
-            timezone: 'America/New_York',
-            locale: 'en-US',
-            primaryColor: '#6366f1',
-            accentColor: '#8b5cf6',
-            supportEmail: 'support@demo-store.com',
-          }
-        }
+  // 4. Test User (Super Admin)
+  console.log('\n👥 Step 4: Provisioning Super Admin...');
+  let authId = null;
+  if (supabase) {
+    // Upsert in Supabase
+    const { data: users, error: searchError } = await supabase.auth.admin.listUsers();
+    let authUser = users?.users?.find(u => u.email === SUPER_ADMIN.email);
+    
+    if (!authUser) {
+      const { data: newAuthUser, error } = await supabase.auth.admin.createUser({
+        email: SUPER_ADMIN.email,
+        password: SUPER_ADMIN.password,
+        email_confirm: true,
+        user_metadata: { name: SUPER_ADMIN.name, role: SUPER_ADMIN.role }
+      });
+      if (error) {
+        console.error('❌ Error creating Supabase user:', error.message);
       }
-    });
+      if (newAuthUser) authUser = newAuthUser.user;
+    }
+    if (authUser) authId = authUser.id;
   }
-  
-  // 5. Test Users
-  console.log('\n👥 Step 5: Provisioning test users...');
-  for (const uDef of TEST_USERS) {
-    let authId = null;
-    if (supabase) {
-      // Upsert in Supabase
-      const { data: users, error: searchError } = await supabase.auth.admin.listUsers();
-      let authUser = users?.users?.find(u => u.email === uDef.email);
-      
-      if (!authUser) {
-        const { data: newAuthUser, error } = await supabase.auth.admin.createUser({
-          email: uDef.email,
-          password: uDef.password,
-          email_confirm: true,
-          user_metadata: { name: uDef.name }
-        });
-        if (newAuthUser) authUser = newAuthUser.user;
-      }
-      if (authUser) authId = authUser.id;
+
+  const userId = authId || `mock-${SUPER_ADMIN.email.split('@')[0]}`;
+
+  let dbUser = await prisma.user.upsert({
+    where: { email: SUPER_ADMIN.email },
+    update: { name: SUPER_ADMIN.name },
+    create: {
+      id: userId,
+      email: SUPER_ADMIN.email,
+      name: SUPER_ADMIN.name,
+      emailVerified: true,
     }
+  });
 
-    const userId = authId || `mock-${uDef.email.split('@')[0]}`;
-
-    let dbUser = await prisma.user.upsert({
-      where: { email: uDef.email },
-      update: { name: uDef.name },
-      create: {
-        id: userId,
-        email: uDef.email,
-        name: uDef.name,
-        emailVerified: true,
-      }
+  // Handle Role mapping based on Scope
+  const superAdminRoleMeta = roleMap[SUPER_ADMIN.role];
+  if (superAdminRoleMeta) {
+    // Link globally via UserPlatformRole
+    await prisma.userPlatformRole.upsert({
+      where: { userId_roleId: { userId: dbUser.id, roleId: superAdminRoleMeta.id } },
+      update: {},
+      create: { userId: dbUser.id, roleId: superAdminRoleMeta.id }
     });
-
-    // Handle Role mapping based on Scope
-    const roleMeta = roleMap[uDef.role];
-    if (roleMeta) {
-      if (roleMeta.scope === 'PLATFORM') {
-        // Link globally via UserPlatformRole
-        await prisma.userPlatformRole.upsert({
-          where: { userId_roleId: { userId: dbUser.id, roleId: roleMeta.id } },
-          update: {},
-          create: { userId: dbUser.id, roleId: roleMeta.id }
-        });
-      } else if (roleMeta.scope === 'TENANT' && uDef.tenantId) {
-        const tId = uDef.tenantId === '__DEMO_TENANT__' ? demoTenant.id : uDef.tenantId;
-        
-        // Ensure Membership exists
-        let membership = await prisma.membership.findUnique({
-          where: { userId_tenantId: { userId: dbUser.id, tenantId: tId } }
-        });
-        
-        if (!membership) {
-          membership = await prisma.membership.create({
-            data: { userId: dbUser.id, tenantId: tId }
-          });
-        }
-        
-        // Link via MembershipRole
-        await prisma.membershipRole.upsert({
-          where: { membershipId_roleId: { membershipId: membership.id, roleId: roleMeta.id } },
-          update: {},
-          create: { membershipId: membership.id, roleId: roleMeta.id }
-        });
-
-        // Set owner if this is OWNER
-        if (uDef.role === 'OWNER' && tId === demoTenant.id) {
-          await prisma.tenant.update({ where: { id: demoTenant.id }, data: { ownerId: dbUser.id } });
-        }
-      }
-    }
   }
 
   console.log('\n🎉 Seed completed successfully!');

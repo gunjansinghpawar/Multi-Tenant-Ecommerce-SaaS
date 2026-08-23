@@ -10,6 +10,11 @@ export class UserService extends BaseService {
     this.userRepository = new UserRepository(tenantId);
   }
 
+  async getUsers(params?: Prisma.UserFindManyArgs) {
+    console.log(`[UserService] Fetching all users`);
+    return this.userRepository.findAll(params);
+  }
+
   async getUserById(id: string) {
     console.log(`[UserService] Fetching user by ID: ${id}`);
     return this.userRepository.findById(id);

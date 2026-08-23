@@ -53,8 +53,8 @@ export default function TelegramIntegrationPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <RHFInput name="botToken" label="Bot Token" placeholder="e.g. 123456789:ABCdefGHIjklmNOPQrsTUVwxyZ" />
-                <RHFInput name="chatId" label="Chat ID" placeholder="e.g. -100123456789" />
+                <RHFInput name="botToken" label="Bot Token" inputProps={{ placeholder: "e.g. 123456789:ABCdefGHIjklmNOPQrsTUVwxyZ" }} />
+                <RHFInput name="chatId" label="Chat ID" inputProps={{ placeholder: "e.g. -100123456789" }} />
                 
                 <div className="space-y-4 pt-4 border-t">
                   <h4 className="text-sm font-medium">Events to Notify</h4>

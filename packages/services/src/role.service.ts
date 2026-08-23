@@ -1,17 +1,20 @@
 import { prisma } from '@commercex/database';
+import { RoleScope } from '@prisma/client';
 
 export class RoleService {
 
   // ─── Role CRUD ───────────────────────────────────────────
 
-  async getRoles() {
+  async getRoles(scope?: RoleScope) {
+    const whereClause = scope ? { scope } : {};
     return prisma.role.findMany({
+      where: whereClause,
       include: {
         permissions: {
           include: { permission: true }
         },
         _count: {
-          select: { users: true }
+          select: { platformUsers: true }
         }
       },
       orderBy: { createdAt: 'asc' }
@@ -26,7 +29,7 @@ export class RoleService {
           include: { permission: true }
         },
         _count: {
-          select: { users: true }
+          select: { platformUsers: true }
         }
       }
     });
@@ -40,25 +43,26 @@ export class RoleService {
           include: { permission: true }
         },
         _count: {
-          select: { users: true }
+          select: { platformUsers: true }
         }
       }
     });
   }
 
-  async createRole(data: { name: string; description?: string; isSystem?: boolean }) {
+  async createRole(data: { name: string; description?: string; isSystem?: boolean; scope?: RoleScope }) {
     return prisma.role.create({
       data: {
         name: data.name,
         description: data.description || null,
         isSystem: data.isSystem || false,
+        scope: data.scope || RoleScope.PLATFORM,
       },
       include: {
         permissions: {
           include: { permission: true }
         },
         _count: {
-          select: { users: true }
+          select: { platformUsers: true }
         }
       }
     });
@@ -83,7 +87,7 @@ export class RoleService {
           include: { permission: true }
         },
         _count: {
-          select: { users: true }
+          select: { platformUsers: true }
         }
       }
     });
@@ -120,20 +124,20 @@ export class RoleService {
 
   async assignRoleToUser(userId: string, roleId: string) {
     // Check if already assigned
-    const existing = await prisma.userRole.findUnique({
+    const existing = await prisma.userPlatformRole.findUnique({
       where: {
         userId_roleId: { userId, roleId }
       }
     });
     if (existing) return existing;
 
-    return prisma.userRole.create({
+    return prisma.userPlatformRole.create({
       data: { userId, roleId }
     });
   }
 
   async removeRoleFromUser(userId: string, roleId: string) {
-    return prisma.userRole.delete({
+    return prisma.userPlatformRole.delete({
       where: {
         userId_roleId: { userId, roleId }
       }
@@ -141,7 +145,7 @@ export class RoleService {
   }
 
   async getUserRoles(userId: string) {
-    return prisma.userRole.findMany({
+    return prisma.userPlatformRole.findMany({
       where: { userId },
       include: {
         role: {
@@ -160,6 +164,17 @@ export class RoleService {
   async getAllPermissions() {
     return prisma.permission.findMany({
       orderBy: [{ category: 'asc' }, { key: 'asc' }]
+    });
+  }
+
+  async createPermission(data: { key: string; name: string; category: string; description?: string }) {
+    return prisma.permission.create({
+      data: {
+        key: data.key,
+        name: data.name,
+        category: data.category,
+        description: data.description || null,
+      }
     });
   }
 

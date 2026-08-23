@@ -22,7 +22,7 @@ export function createServerSupabaseClient(cookieStore: any) {
       },
       set(name: string, value: string, options: any) {
         try {
-          cookieStore.set({ name, value, ...options });
+          cookieStore.set({ name, value, ...options, maxAge: 86400 });
         } catch (error) {
           // The `set` method was called from a Server Component.
           // This can be ignored if you have middleware refreshing user sessions.

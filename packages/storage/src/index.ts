@@ -58,3 +58,6 @@ export class SupabaseStorageProvider implements StorageProvider {
     return data.signedUrl;
   }
 }
+
+export * from './cloudinary.provider';
+export * from './cloudflare-r2.provider';

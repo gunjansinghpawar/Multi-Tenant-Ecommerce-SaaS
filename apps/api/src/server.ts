@@ -13,6 +13,9 @@ import { validationHook } from './utils/validation-hook';
 // Import V1 routers
 import { apiV1 } from './v1';
 
+// Import Workers
+import { startNotificationWorker } from './workers/notification.worker';
+
 const app = new OpenAPIHono({
   defaultHook: validationHook
 });
@@ -66,6 +69,9 @@ app.doc('/doc', {
 // Start server
 const port = parseInt(process.env.PORT || '3001', 10);
 console.log(`Starting Hono server on port ${port}...`);
+
+// Start workers
+startNotificationWorker();
 
 serve({
   fetch: app.fetch,

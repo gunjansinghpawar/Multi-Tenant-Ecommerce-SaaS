@@ -25,7 +25,9 @@ import {
   ShoppingCartIcon,
   ClockIcon,
   TagIcon,
-  MoreHorizontalIcon
+  MoreHorizontalIcon,
+  CheckCircle2Icon,
+  PlusIcon
 } from "lucide-react";
 
 export default function CustomerProfilePage({ params }: { params: { id: string } }) {
@@ -339,7 +341,7 @@ export default function CustomerProfilePage({ params }: { params: { id: string }
                       <p className="font-medium text-sm">VIP Customers</p>
                       <p className="text-xs text-muted-foreground">Dynamic Segment</p>
                     </div>
-                    <Badge variant="primary">Active</Badge>
+                    <Badge variant="default">Active</Badge>
                   </div>
                   <div className="flex items-center justify-between p-3 border rounded-md">
                     <div>

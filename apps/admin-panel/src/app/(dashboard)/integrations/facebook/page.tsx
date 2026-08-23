@@ -77,8 +77,8 @@ export default function FacebookIntegrationPage() {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <RHFSwitch name="enablePixel" label="Enable Meta Pixel" description="Track page views, add to carts, and purchases." />
-                  <RHFInput name="pixelId" label="Meta Pixel ID" placeholder="e.g. 1234567890" />
-                  <RHFInput name="conversionApiToken" label="Conversions API Access Token" inputProps={{ type: "password" }} placeholder="Paste your CAPI token here" />
+                  <RHFInput name="pixelId" label="Meta Pixel ID" inputProps={{ placeholder: "e.g. 1234567890" }} />
+                  <RHFInput name="conversionApiToken" label="Conversions API Access Token" inputProps={{ type: "password", placeholder: "Paste your CAPI token here" }} />
                   
                   <div className="pt-4 border-t flex justify-end">
                     <Button type="submit">Save Tracking Settings</Button>

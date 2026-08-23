@@ -10,12 +10,7 @@ export const PaginationSchema = z.object({
     .int()
     .positive()
     .max(100, { message: 'Maximum page size is 100' })
-    .default(25)
-    .openapi({
-      description: 'Number of records to return',
-      example: 25,
-      default: 25,
-    }),
+    .default(25),
   cursor: z.string().optional().openapi({
     description: 'Cursor for the next page of results',
     example: 'eyJpZCI6MTIzfQ==',
@@ -34,11 +29,11 @@ export const createSortSchema = (allowedFields: [string, ...string[]]) => {
       description: 'Field to sort by',
       example: allowedFields[0],
     }),
-    sortOrder: z.enum(['asc', 'desc']).default('desc').openapi({
+    sortOrder: z.enum(['asc', 'desc']).openapi({
       description: 'Sort direction (asc or desc)',
       example: 'desc',
       default: 'desc',
-    }),
+    }).default('desc'),
   });
 };
 

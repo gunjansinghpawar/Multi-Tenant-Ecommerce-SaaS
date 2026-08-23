@@ -1,0 +1,378 @@
+// ============================================================
+// MASTER DATA MANAGEMENT MODULE
+// ============================================================
+model Continent {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  name String
+  slug String @unique
+  description String?
+  sortOrder Int? @default(0)
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  countries Country[]
+}
+
+model Country {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  continentId String
+  iso2 String @unique
+  iso3 String @unique
+  numericCode Int @unique
+  name String
+  officialName String?
+  nativeName String?
+  slug String @unique
+  phoneCode String?
+  currencyId String?
+  capital String?
+  latitude Float?
+  longitude Float?
+  flag String?
+  sortOrder Int? @default(0)
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  continent Continent? @relation(fields: [continentId], references: [id])
+  currency Currency? @relation(fields: [currencyId], references: [id])
+  states State[]
+  cities City[]
+}
+
+model State {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  countryId String
+  code String
+  name String
+  slug String @unique
+  type String?
+  latitude Float?
+  longitude Float?
+  sortOrder Int? @default(0)
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  country Country? @relation(fields: [countryId], references: [id])
+  cities City[]
+}
+
+model City {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  countryId String
+  stateId String
+  name String
+  slug String @unique
+  postalCodePattern String?
+  latitude Float?
+  longitude Float?
+  population Int?
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  country Country? @relation(fields: [countryId], references: [id])
+  state State? @relation(fields: [stateId], references: [id])
+}
+
+model Currency {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  numericCode Int @unique
+  name String
+  symbol String
+  nativeSymbol String?
+  decimalDigits Int @default(2)
+  decimalSeparator String @default(".")
+  thousandsSeparator String @default(",")
+  symbolPosition String @default("BEFORE")
+  minorUnit Int? @default(100)
+  status String @default("ACTIVE")
+  isBaseCurrency Boolean? @default(false)
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model Language {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  locale String @unique
+  name String
+  nativeName String?
+  direction String @default("LTR")
+  status String @default("ACTIVE")
+  sortOrder Int? @default(0)
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model Timezone {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  identifier String @unique
+  name String
+  utcOffset String
+  observesDst Boolean? @default(false)
+  countryId String?
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  country Country? @relation(fields: [countryId], references: [id])
+}
+
+model TaxCategory {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  name String
+  description String?
+  status String @default("ACTIVE")
+  sortOrder Int? @default(0)
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  taxRates TaxRate[]
+}
+
+model TaxRate {
+  id String @id @default(uuid())
+  tenantId String? // null = GLOBAL
+  taxCategoryId String
+  countryId String
+  stateId String?
+  rate Float
+  type String @default("PERCENTAGE")
+  effectiveFrom DateTime
+  effectiveTo DateTime?
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  taxCategory TaxCategory? @relation(fields: [taxCategoryId], references: [id])
+  country Country? @relation(fields: [countryId], references: [id])
+  state State? @relation(fields: [stateId], references: [id])
+}
+
+model ProductType {
+  id String @id @default(uuid())
+  tenantId String? // null = GLOBAL
+  code String @unique
+  name String
+  description String?
+  status String @default("ACTIVE")
+  sortOrder Int? @default(0)
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model AttributeType {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  name String
+  description String?
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model Unit {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  name String
+  symbol String
+  description String?
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model WeightUnit {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  name String
+  symbol String
+  description String?
+  conversionToBase Float
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model DimensionUnit {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  name String
+  symbol String
+  description String?
+  conversionToBase Float
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model CustomerStatusMaster {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  name String
+  description String?
+  color String?
+  sortOrder Int? @default(0)
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model AddressType {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  name String
+  description String?
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model BusinessType {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  name String
+  description String?
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model Industry {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  name String
+  slug String @unique
+  description String?
+  icon String?
+  sortOrder Int? @default(0)
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model OrderStatusMaster {
+  id String @id @default(uuid())
+  tenantId String? // null = GLOBAL
+  code String @unique
+  name String
+  description String?
+  color String?
+  isFinal Boolean? @default(false)
+  sortOrder Int? @default(0)
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model PaymentStatusMaster {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  name String
+  description String?
+  color String?
+  isFinal Boolean? @default(false)
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model FulfillmentStatusMaster {
+  id String @id @default(uuid())
+  tenantId String? // Added for safety but scope is GLOBAL
+  code String @unique
+  name String
+  description String?
+  color String?
+  isFinal Boolean? @default(false)
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model CancellationReason {
+  id String @id @default(uuid())
+  tenantId String? // null = GLOBAL
+  code String @unique
+  name String
+  description String?
+  sortOrder Int? @default(0)
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+
+model ReturnReason {
+  id String @id @default(uuid())
+  tenantId String? // null = GLOBAL
+  code String @unique
+  name String
+  description String?
+  sortOrder Int? @default(0)
+  status String @default("ACTIVE")
+  metadata Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+}
+

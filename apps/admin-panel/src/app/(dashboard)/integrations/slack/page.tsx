@@ -55,7 +55,7 @@ export default function SlackIntegrationPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <RHFInput name="webhookUrl" label="Incoming Webhook URL" placeholder="https://hooks.slack.com/services/..." />
+                <RHFInput name="webhookUrl" label="Incoming Webhook URL" inputProps={{ placeholder: "https://hooks.slack.com/services/..." }} />
                 
                 <div className="space-y-4 pt-4 border-t">
                   <h4 className="text-sm font-medium">Events to Notify</h4>

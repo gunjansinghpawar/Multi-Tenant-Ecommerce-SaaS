@@ -24,7 +24,7 @@ const categorySchema = z.object({
   slug: z.string().min(2, "Slug is required"),
   description: z.string().optional(),
   parentId: z.string().optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
   
   // Media
   bannerUrl: z.string().optional(),

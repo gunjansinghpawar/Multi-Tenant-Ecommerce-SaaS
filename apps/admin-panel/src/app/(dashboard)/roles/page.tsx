@@ -11,7 +11,7 @@ type RoleRow = {
   name: string;
   description: string | null;
   isSystem: boolean;
-  _count: { users: number };
+  _count: { platformUsers: number };
   permissions: { permission: { key: string; name: string; category: string } }[];
 };
 
@@ -52,7 +52,7 @@ const columns: ColumnDef<RoleRow>[] = [
     header: "Assigned Users",
     cell: ({ row }) => (
       <Badge variant="secondary">
-        {row.original._count.users} users
+        {row.original._count.platformUsers} users
       </Badge>
     ),
   },

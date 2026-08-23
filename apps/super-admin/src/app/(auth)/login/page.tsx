@@ -5,14 +5,15 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useRouter } from "next/navigation";
 import {
   AuthLayout,
   Button,
   Form,
   RHFInput,
-  RHFCheckbox
+  useToast
 } from "@commercex/ui";
-import { ArrowRightIcon, Loader2Icon } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 import { loginAction } from "../../../actions/auth.actions";
 
 const loginSchema = z.object({
@@ -25,6 +26,8 @@ type LoginValues = z.infer<typeof loginSchema>;
 
 export default function SuperAdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -42,14 +45,18 @@ export default function SuperAdminLoginPage() {
     if (result.error) {
       form.setError("root", { message: result.error });
     } else {
-      window.location.href = "/";
+      toast({
+        title: "Authentication Successful",
+        description: "Welcome back, Admin.",
+      });
+      router.replace("/");
     }
   };
 
   return (
     <AuthLayout
-      heading="Welcome back"
-      description="Sign in to your Super Admin account to manage the platform."
+      heading="Platform Administration"
+      description="Secure authentication required to access the CommerceX orchestration layer."
       brandName="CommerceX Super Admin"
     >
       <Form {...form}>
@@ -94,18 +101,14 @@ export default function SuperAdminLoginPage() {
 
           <Button type="submit" className="w-full mt-6" disabled={isLoading}>
             {isLoading ? (
-              <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+              <>
+                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                Authenticating...
+              </>
             ) : (
-              "Sign In"
+              "Authenticate"
             )}
           </Button>
-
-          <p className="text-center text-sm text-muted-foreground mt-6">
-            Don't have an account?{" "}
-            <Link href="/register" className="font-semibold text-primary hover:underline inline-flex items-center">
-              Register <ArrowRightIcon className="ml-1 h-3 w-3" />
-            </Link>
-          </p>
         </form>
       </Form>
     </AuthLayout>

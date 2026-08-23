@@ -132,7 +132,7 @@ export default function ScheduledReportsPage() {
           <div className="mt-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <RHFInput name="name" label="Schedule Name" placeholder="e.g. Weekly Executive Report" />
+                <RHFInput name="name" label="Schedule Name" inputProps={{ placeholder: "e.g. Weekly Executive Report" }} />
                 
                 <RHFSelect 
                   name="reportType" 
@@ -164,7 +164,7 @@ export default function ScheduledReportsPage() {
                   ]} 
                 />
                 
-                <RHFInput name="recipients" label="Email Recipients (Comma separated)" placeholder="ceo@company.com, ops@company.com" />
+                <RHFInput name="recipients" label="Email Recipients (Comma separated)" inputProps={{ placeholder: "ceo@company.com, ops@company.com" }} />
                 
                 <div className="pt-4 flex justify-end space-x-2">
                   <Button variant="outline" type="button" onClick={() => setIsSheetOpen(false)}>Cancel</Button>

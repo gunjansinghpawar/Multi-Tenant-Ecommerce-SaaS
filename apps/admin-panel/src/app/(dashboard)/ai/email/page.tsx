@@ -83,7 +83,7 @@ export default function AIEmailPage() {
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
-                  <RHFInput name="audience" label="Target Audience" placeholder="e.g. VIP Customers" />
+                  <RHFInput name="audience" label="Target Audience" inputProps={{ placeholder: "e.g. VIP Customers" }} />
                   <RHFSelect 
                     name="tone" 
                     label="Tone of Voice" 

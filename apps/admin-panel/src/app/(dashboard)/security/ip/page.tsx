@@ -64,8 +64,8 @@ export default function IPRestrictionsPage() {
             <CardContent>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <RHFInput name="ipAddress" label="IP Address / CIDR" placeholder="e.g., 192.168.1.1/32" />
-                  <RHFInput name="description" label="Description" placeholder="e.g., Office Network" />
+                  <RHFInput name="ipAddress" label="IP Address / CIDR" inputProps={{ placeholder: "e.g., 192.168.1.1/32" }} />
+                  <RHFInput name="description" label="Description" inputProps={{ placeholder: "e.g., Office Network" }} />
                   <div className="flex gap-2 pt-2">
                     <Button type="button" variant="outline" className="w-full">Block</Button>
                     <Button type="submit" className="w-full">Allow</Button>
