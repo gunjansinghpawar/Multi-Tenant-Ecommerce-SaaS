@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function EnterprisePage() {
   return (
-    <div className="flex flex-col min-h-screen pt-24 pb-32 bg-background">
+    <div className="flex flex-col min-h-screen pt-32 pb-24 bg-background">
       {/* Hero Section */}
       <section className="relative px-4 md:px-6 mb-24 lg:mb-32">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
@@ -19,7 +19,7 @@ export default function EnterprisePage() {
             <Building2 className="mr-2 h-4 w-4 text-primary" /> CommerceX for Enterprise
           </div>
           <h1 className="text-display tracking-tight text-foreground">
-            Uncapped performance.<br/>
+            Uncapped performance.<br />
             Uncompromising control.
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">

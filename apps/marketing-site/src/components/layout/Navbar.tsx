@@ -6,10 +6,10 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@commercex/ui';
 import { cn } from '@/lib/utils';
-import { 
-  Menu, X, ChevronDown, Package, LayoutDashboard, ShoppingCart, 
-  BarChart, Smartphone, Bot, Blocks, Rocket, Store, Briefcase, 
-  Building2, Terminal, BookOpen, Users, FileText, Zap, Shield, 
+import {
+  Menu, X, ChevronDown, Package, LayoutDashboard, ShoppingCart,
+  BarChart, Smartphone, Bot, Blocks, Rocket, Store, Briefcase,
+  Building2, Terminal, BookOpen, Users, FileText, Zap, Shield,
   ArrowRight, Globe, Lock, PlayCircle, Map, MessageSquare
 } from 'lucide-react';
 
@@ -78,7 +78,7 @@ export function Navbar() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const renderDropdown = (items: any[], activeKey: string) => (
+  const renderDropdown = (items: any[], activeKey: string, align: 'center' | 'right' = 'center') => (
     <AnimatePresence>
       {activeDropdown === activeKey && (
         <motion.div
@@ -87,13 +87,16 @@ export function Navbar() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 10, scale: 0.98 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="absolute top-full left-1/2 -translate-x-1/2 pt-6 w-[800px]"
+          className={cn(
+            "absolute top-full pt-6 w-[800px]",
+            align === 'center' ? "left-1/2 -translate-x-1/2" : "right-0"
+          )}
         >
           {/* Glassmorphic Mega Menu */}
           <div className="relative bg-card/95 backdrop-blur-2xl border border-white/10 rounded-[24px] shadow-2xl overflow-hidden flex">
             {/* Ambient Background Glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-            
+
             {/* Links Grid */}
             <div className="w-2/3 p-6 grid grid-cols-2 gap-x-2 gap-y-1 relative z-10">
               {items.map((item) => (
@@ -133,13 +136,13 @@ export function Navbar() {
     <header
       className={cn(
         'fixed top-0 inset-x-0 z-50 transition-all duration-500 border-b',
-        isScrolled 
-          ? 'bg-background/40 backdrop-blur-2xl border-white/10 shadow-2xl py-3' 
+        isScrolled
+          ? 'bg-background/40 backdrop-blur-2xl border-white/10 shadow-2xl py-3'
           : 'bg-transparent border-transparent py-6'
       )}
     >
       <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
-        
+
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group relative z-10">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-transform group-hover:scale-105 shadow-lg shadow-primary/20">
@@ -150,7 +153,7 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
-          
+
           <div className="relative" onMouseEnter={() => setActiveDropdown('product')} onMouseLeave={() => setActiveDropdown(null)} onFocus={() => setActiveDropdown('product')} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setActiveDropdown(null); }}>
             <button aria-expanded={activeDropdown === 'product'} aria-controls="product-dropdown" className={cn("flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary", activeDropdown === 'product' ? 'bg-white/10 text-foreground' : 'text-muted-foreground hover:text-foreground')}>
               Product <ChevronDown size={14} className={cn("transition-transform opacity-50", activeDropdown === 'product' && "rotate-180")} aria-hidden="true" />
@@ -169,16 +172,16 @@ export function Navbar() {
             <button aria-expanded={activeDropdown === 'resources'} aria-controls="resources-dropdown" className={cn("flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary", activeDropdown === 'resources' ? 'bg-white/10 text-foreground' : 'text-muted-foreground hover:text-foreground')}>
               Resources <ChevronDown size={14} className={cn("transition-transform opacity-50", activeDropdown === 'resources' && "rotate-180")} aria-hidden="true" />
             </button>
-            {renderDropdown(resourcesNav, 'resources')}
+            {renderDropdown(resourcesNav, 'resources', 'right')}
           </div>
 
           <div className="relative" onMouseEnter={() => setActiveDropdown('company')} onMouseLeave={() => setActiveDropdown(null)} onFocus={() => setActiveDropdown('company')} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setActiveDropdown(null); }}>
             <button aria-expanded={activeDropdown === 'company'} aria-controls="company-dropdown" className={cn("flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary", activeDropdown === 'company' ? 'bg-white/10 text-foreground' : 'text-muted-foreground hover:text-foreground')}>
               Company <ChevronDown size={14} className={cn("transition-transform opacity-50", activeDropdown === 'company' && "rotate-180")} aria-hidden="true" />
             </button>
-            {renderDropdown(companyNav, 'company')}
+            {renderDropdown(companyNav, 'company', 'right')}
           </div>
-          
+
           <Link href="/pricing" className="text-sm font-bold text-muted-foreground hover:text-foreground transition-all px-4 py-2 rounded-full">
             Pricing
           </Link>
@@ -197,7 +200,7 @@ export function Navbar() {
         </div>
 
         {/* Mobile Menu Toggle */}
-        <button 
+        <button
           className="lg:hidden p-2 -mr-2 text-foreground/80 hover:text-foreground relative z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
@@ -218,7 +221,7 @@ export function Navbar() {
             className="fixed inset-0 z-40 bg-background/95 backdrop-blur-3xl pt-24 pb-8 px-4 overflow-y-auto lg:hidden flex flex-col"
           >
             <div className="flex-1 flex flex-col gap-8">
-              
+
               {/* Product Group */}
               <div>
                 <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4 px-2">Product</h3>

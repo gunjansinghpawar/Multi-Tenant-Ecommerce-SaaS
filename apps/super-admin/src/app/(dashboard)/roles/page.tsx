@@ -24,8 +24,15 @@ import {
   Trash2Icon,
   CheckIcon,
   Loader2Icon,
-  SaveIcon
+  SaveIcon,
+  UsersIcon, 
+  ShieldCheckIcon, 
+  AlertTriangleIcon, 
+  CheckCircleIcon, 
+  PlayIcon, 
+  LinkIcon 
 } from "lucide-react";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { 
   getRolesAction, 
   getPermissionsByCategoryAction, 
@@ -148,7 +155,14 @@ export default function RolesPage() {
   };
 
   // ── Delete Role ───────────────────────────────────────────
-  const handleDelete = async () => {
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const handleDeleteRequest = () => {
+    if (!activeRoleId || activeRole?.isSystem) return;
+    setDeleteOpen(true);
+  };
+
+  const confirmDeleteRole = async () => {
     if (!activeRoleId || activeRole?.isSystem) return;
     const result = await deleteRoleAction(activeRoleId);
     if (result.success) {
@@ -275,7 +289,7 @@ export default function RolesPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     {!activeRole.isSystem && (
-                      <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10 border-destructive/20" onClick={handleDelete}>
+                      <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10 border-destructive/20" onClick={handleDeleteRequest}>
                         <Trash2Icon className="mr-2 h-4 w-4" /> Delete
                       </Button>
                     )}
@@ -371,6 +385,16 @@ export default function RolesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </div>
+
+      {/* Delete Role Confirmation */}
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        intent="danger"
+        title="Delete Role"
+        description={`Are you sure you want to permanently delete the "${activeRole?.name}" role? Users with this role might lose access.`}
+        onConfirm={confirmDeleteRole}
+      />
+    </div>
   );
 }

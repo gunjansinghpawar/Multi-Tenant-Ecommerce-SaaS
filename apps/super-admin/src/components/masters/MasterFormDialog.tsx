@@ -18,7 +18,7 @@ import {
   useToast
 } from "@commercex/ui";
 import { IMasterEntity } from "@commercex/types/src/masters.types";
-
+import { ConfirmDialog } from "../ConfirmDialog";
 import { SearchableReferenceSelect } from "./SearchableReferenceSelect";
 
 interface MasterFormDialogProps {
@@ -41,6 +41,7 @@ interface MasterFormDialogProps {
 export function MasterFormDialog({ open, onOpenChange, title, initialData, fields = [], onSave }: MasterFormDialogProps) {
   const [formData, setFormData] = useState<Partial<IMasterEntity>>({});
   const [isPending, setIsPending] = useState(false);
+  const [confirmSaveOpen, setConfirmSaveOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -57,7 +58,17 @@ export function MasterFormDialog({ open, onOpenChange, title, initialData, field
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = async () => {
+  const initiateSave = () => {
+    if (initialData) {
+      // Editing: confirm before saving
+      setConfirmSaveOpen(true);
+    } else {
+      // Creating: save directly
+      executeSave();
+    }
+  };
+
+  const executeSave = async () => {
     try {
       setIsPending(true);
       
@@ -70,6 +81,7 @@ export function MasterFormDialog({ open, onOpenChange, title, initialData, field
       });
 
       await onSave(payload);
+      setConfirmSaveOpen(false);
       onOpenChange(false);
     } catch (error: any) {
       toast({ title: "Error", description: error.message || "Failed to save record.", variant: "destructive" });
@@ -79,6 +91,7 @@ export function MasterFormDialog({ open, onOpenChange, title, initialData, field
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl max-h-[90vh] flex flex-col">
         <DialogHeader>
@@ -130,11 +143,23 @@ export function MasterFormDialog({ open, onOpenChange, title, initialData, field
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>Cancel</Button>
-          <Button onClick={handleSave} disabled={isPending}>
+          <Button onClick={initiateSave} disabled={isPending}>
             {isPending ? "Saving..." : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+    
+    <ConfirmDialog
+      open={confirmSaveOpen}
+      onOpenChange={setConfirmSaveOpen}
+      intent="warning"
+      title={`Save changes to ${title}?`}
+      description="You are about to save changes to this record. Please confirm your edits."
+      confirmLabel="Save Changes"
+      onConfirm={executeSave}
+      loading={isPending}
+    />
+    </>
   );
 }

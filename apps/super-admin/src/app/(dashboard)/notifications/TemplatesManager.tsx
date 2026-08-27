@@ -12,7 +12,10 @@ import {
   Plus, ChevronRight, CheckCircle2, Search, ShieldAlert,
   CreditCard, ShoppingCart, Bell
 } from "lucide-react";
-import { getTemplatesForEvent, saveTemplate, deleteTemplate, TemplateData } from "./actions";
+import {
+  getTemplatesForEvent, saveTemplate, deleteTemplate, TemplateData,
+  triggerTestNotificationAction
+} from "./actions";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -168,7 +171,138 @@ const CATEGORIES = ["All", "Auth", "Billing", "Commerce", "Custom"] as const;
 type Category = (typeof CATEGORIES)[number];
 
 // ---------------------------------------------------------------------------
-// Add Event Dialog
+// Test Event Dialog
+// ---------------------------------------------------------------------------
+
+interface TestEventDialogProps {
+  open: boolean;
+  onClose: () => void;
+  event: NotificationEventDef | null;
+}
+
+function TestEventDialog({ open, onClose, event }: TestEventDialogProps) {
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [variables, setVariables] = useState<Record<string, string>>({});
+  const [sending, setSending] = useState(false);
+  const [result, setResult] = useState<any>(null);
+
+  // Initialize variable inputs when event changes
+  useEffect(() => {
+    if (open && event) {
+      const initialVars: Record<string, string> = {};
+      event.variables.forEach(v => { initialVars[v] = ""; });
+      setVariables(initialVars);
+      setResult(null);
+    }
+  }, [open, event]);
+
+  const handleTest = async () => {
+    if (!event) return;
+    setSending(true);
+    setResult(null);
+    try {
+      const res = await triggerTestNotificationAction(
+        event.id,
+        { email: email || undefined, phone: phone || undefined },
+        variables
+      );
+      setResult(res);
+    } catch (err: any) {
+      setResult({ success: false, error: err.message });
+    }
+    setSending(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Zap className="h-4 w-4 text-amber-500" />
+            Test Event: {event?.name}
+          </DialogTitle>
+          <DialogDescription>
+            Fire this event manually to test active notification channels.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-2">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label>Test Email Address</Label>
+              <Input
+                placeholder="test@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Test Phone Number</Label>
+              <Input
+                placeholder="+1234567890"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {event && event.variables.length > 0 && (
+            <div className="space-y-3 pt-2">
+              <Label className="text-xs font-semibold text-muted-foreground uppercase">Template Variables</Label>
+              <div className="grid grid-cols-2 gap-3 p-3 rounded-lg border bg-muted/20">
+                {event.variables.map(v => (
+                  <div key={v} className="space-y-1">
+                    <Label className="text-xs font-mono">{`{{${v}}}`}</Label>
+                    <Input
+                      className="h-8 text-sm"
+                      placeholder="Value"
+                      value={variables[v] || ""}
+                      onChange={(e) => setVariables(prev => ({ ...prev, [v]: e.target.value }))}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {result && (
+            <div className={`p-4 rounded-lg text-sm border ${
+              result.success ? "bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400" : "bg-destructive/10 border-destructive/20 text-destructive"
+            }`}>
+              {result.success ? (
+                <div className="space-y-2">
+                  <div className="font-semibold flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4" /> Test Dispatched
+                  </div>
+                  {result.result?.results?.map((r: any, i: number) => (
+                    <div key={i} className="text-xs opacity-90">
+                      • {r.channel}: {r.success ? "Success" : `Failed (${r.error})`}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="font-semibold flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" /> {result.error}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Close</Button>
+          <Button onClick={handleTest} disabled={sending || (!email && !phone)}>
+            {sending ? "Sending..." : "Send Test Event"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main Component
 // ---------------------------------------------------------------------------
 
 interface AddEventDialogProps {
@@ -329,6 +463,7 @@ export function TemplatesManager() {
   const [categoryFilter, setCategoryFilter] = useState<Category>("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [testDialogOpen, setTestDialogOpen] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -533,6 +668,9 @@ export function TemplatesManager() {
                       {activeCount} channel{activeCount > 1 ? "s" : ""} active
                     </Badge>
                   )}
+                  <Button variant="secondary" size="sm" className="mt-1 h-7 text-xs bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border-amber-500/20" onClick={() => setTestDialogOpen(true)}>
+                    <Zap className="h-3 w-3 mr-1.5" /> Test Event
+                  </Button>
                 </div>
               </div>
 
@@ -771,6 +909,13 @@ export function TemplatesManager() {
         open={addDialogOpen}
         onClose={() => setAddDialogOpen(false)}
         onAdd={handleAddEvent}
+      />
+
+      {/* Test Event Dialog */}
+      <TestEventDialog
+        open={testDialogOpen}
+        onClose={() => setTestDialogOpen(false)}
+        event={selectedEvent}
       />
     </div>
   );

@@ -18,8 +18,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DeleteDialog,
-  WarningDialog,
   ImportWizardDialog,
   ExportWizardDialog,
   useToast
@@ -33,6 +31,7 @@ import {
   StoreIcon
 } from "lucide-react";
 import { createTenantAction, updateTenantStatusAction, deleteTenantAction } from "../../../actions/tenant.actions";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 export type Store = {
   id: string;
@@ -310,23 +309,27 @@ export function StoresClient({ initialData, availablePlans = [] }: { initialData
       />
 
       {/* 4. SUSPEND CONFIRMATION DIALOG */}
-      <WarningDialog
+      <ConfirmDialog
         open={isSuspendOpen}
         onOpenChange={setIsSuspendOpen}
+        intent="warning"
         title={selectedStore?.status === "Suspended" ? "Reactivate Store" : "Suspend Store"}
         description={`Are you sure you want to ${selectedStore?.status === "Suspended" ? "reactivate" : "suspend"} "${selectedStore?.name}"?`}
-        confirmText={isPending ? "Updating..." : selectedStore?.status === "Suspended" ? "Reactivate" : "Suspend Store"}
+        confirmLabel={selectedStore?.status === "Suspended" ? "Reactivate" : "Suspend Store"}
         onConfirm={handleSuspendStore}
+        loading={isPending}
       />
 
       {/* 5. DELETE STORE DIALOG */}
-      <DeleteDialog
+      <ConfirmDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
+        intent="danger"
         title="Delete Store"
         description={`Are you sure you want to permanently delete "${selectedStore?.name}"? This action cannot be undone.`}
-        confirmText={isPending ? "Deleting..." : "Delete Store"}
+        confirmLabel="Delete Store"
         onConfirm={handleDeleteStore}
+        loading={isPending}
       />
     </div>
   );

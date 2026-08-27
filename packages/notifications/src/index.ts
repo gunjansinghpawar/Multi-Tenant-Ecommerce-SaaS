@@ -5,6 +5,7 @@ export * from './providers/SmtpProvider';
 export * from './providers/Msg91SmsProvider';
 export * from './providers/TwilioSmsProvider';
 export * from './providers/MetaWhatsappProvider';
+export * from './EventBus';
 
 // Legacy template helpers (keep for backward compatibility)
 export function renderInvitationEmailTemplate(inviteUrl: string, tenantName: string, roleName: string): string {

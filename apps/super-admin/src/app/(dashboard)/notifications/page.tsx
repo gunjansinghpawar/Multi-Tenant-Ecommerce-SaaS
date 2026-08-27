@@ -11,6 +11,7 @@ import {
   Plus, CheckCircle2, XCircle, Star, Trash2, Edit3,
   AlertCircle, ScrollText, ToggleLeft,
 } from "lucide-react";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { TemplatesManager } from "./TemplatesManager";
 import {
   getProviders, upsertProvider, toggleProviderStatus,
@@ -355,6 +356,7 @@ export default function NotificationsPage() {
 
   const [dialogOpen, setDialogOpen]   = useState(false);
   const [editingProvider, setEditingProvider] = useState<(ProviderConfig & { id: string }) | null>(null);
+  const [deletingProviderId, setDeletingProviderId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -392,11 +394,17 @@ export default function NotificationsPage() {
     load();
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this provider? This cannot be undone.")) return;
+  const handleDeleteRequest = (id: string) => {
+    setDeletingProviderId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingProviderId) return;
+    const id = deletingProviderId;
     setProviders(prev => prev.filter(p => p.id !== id));
     await deleteProvider(id);
     load();
+    setDeletingProviderId(null);
   };
 
   // Group providers by channel
@@ -474,7 +482,7 @@ export default function NotificationsPage() {
                     onEdit={setEditingProvider}
                     onToggle={handleToggleProvider}
                     onSetPrimary={handleSetPrimary}
-                    onDelete={handleDelete}
+                    onDelete={handleDeleteRequest}
                   />
                 ))}
 
@@ -512,6 +520,16 @@ export default function NotificationsPage() {
         editing={editingProvider}
         onClose={() => { setDialogOpen(false); setEditingProvider(null); }}
         onSaved={load}
+      />
+
+      {/* Delete Provider Confirmation */}
+      <ConfirmDialog
+        open={!!deletingProviderId}
+        onOpenChange={(open) => !open && setDeletingProviderId(null)}
+        intent="danger"
+        title="Delete Provider"
+        description="Are you sure you want to permanently delete this provider? Any settings referencing it might be affected."
+        onConfirm={confirmDelete}
       />
     </div>
   );

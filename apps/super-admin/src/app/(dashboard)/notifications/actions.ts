@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@commercex/database";
+import { NotificationService } from "@commercex/notifications";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -340,5 +341,33 @@ export async function updateNotificationSettings(patch: {
   } catch (error: any) {
     console.error("Error updating notification settings:", error);
     return { success: false, error: error.message };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Manual Trigger / Event Testing
+// ---------------------------------------------------------------------------
+
+/**
+ * Trigger an event manually (e.g. for testing from the UI)
+ */
+export async function triggerTestNotificationAction(
+  eventName: string,
+  recipients: { email?: string; phone?: string },
+  variables: any = {}
+) {
+  try {
+    const service = new NotificationService(prisma);
+    const result = await service.triggerEvent({
+      tenantId: PLATFORM_TENANT_ID,
+      eventName,
+      recipients,
+      variables,
+      category: 'SYSTEM',
+    });
+
+    return { success: true, result };
+  } catch (error: any) {
+    return { success: false, error: error.message || "Failed to trigger test notification" };
   }
 }

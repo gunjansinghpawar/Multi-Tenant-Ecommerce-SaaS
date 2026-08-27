@@ -37,14 +37,15 @@ export class NotificationService {
 
     // 1. Process EMAIL
     if (settings.emailEnabled && params.recipients.email) {
-      const emailTemplate = await this.prisma.emailTemplate.findFirst({
-        where: { tenantId: params.tenantId, name: params.eventName }
-      }) as any; // Cast to any to bypass TS error until Prisma is generated
+      const emailTemplate = await this.prisma.notificationTemplate.findFirst({
+        where: { tenantId: params.tenantId, name: `EMAIL::${params.eventName}` }
+      });
 
-      if (emailTemplate) {
+      if (emailTemplate && emailTemplate.content) {
         try {
-          const compiledHtml = Handlebars.compile(emailTemplate.html)(params.variables);
-          const compiledSubject = Handlebars.compile(emailTemplate.subject || params.eventName)(params.variables);
+          const parsed = JSON.parse(emailTemplate.content as string);
+          const compiledHtml = Handlebars.compile(parsed.html || '')(params.variables);
+          const compiledSubject = Handlebars.compile(parsed.subject || params.eventName)(params.variables);
 
           const result = await this.send({
             tenantId: params.tenantId,
@@ -70,14 +71,13 @@ export class NotificationService {
 
     // 2. Process SMS
     if (settings.smsEnabled && params.recipients.phone) {
-      const smsTemplate = await this.prisma.smsTemplate.findFirst({
-        // @ts-ignore - name field was just added to schema, bypass until prisma generate is run
-        where: { tenantId: params.tenantId, name: params.eventName }
-      }) as any;
+      const smsTemplate = await this.prisma.notificationTemplate.findFirst({
+        where: { tenantId: params.tenantId, name: `SMS::${params.eventName}` }
+      });
 
-      if (smsTemplate) {
+      if (smsTemplate && smsTemplate.content) {
         try {
-          const compiledContent = Handlebars.compile(smsTemplate.content)(params.variables);
+          const compiledContent = Handlebars.compile(smsTemplate.content as string)(params.variables);
 
           const result = await this.send({
             tenantId: params.tenantId,
@@ -102,11 +102,11 @@ export class NotificationService {
 
     // 3. Process WHATSAPP
     if (settings.whatsappEnabled && params.recipients.phone) {
-      const waTemplate = await this.prisma.whatsappTemplate.findFirst({
-        where: { tenantId: params.tenantId, name: params.eventName }
+      const waTemplate = await this.prisma.notificationTemplate.findFirst({
+        where: { tenantId: params.tenantId, name: `WA::${params.eventName}` }
       });
 
-      if (waTemplate) {
+      if (waTemplate && waTemplate.content) {
         try {
           // Note: Meta WhatsApp expects variables to be an array or object of strings.
           // Handlebars isn't needed for Meta API template matching unless we're just injecting into a generic text body.
@@ -117,7 +117,7 @@ export class NotificationService {
             eventType: params.eventName,
             payload: {
               to: params.recipients.phone,
-              templateName: waTemplate.name, // Meta template name
+              templateName: waTemplate.content as string, // Meta template name
               language: 'en_US', // Should ideally come from the DB template record
               variables: params.variables,
             },

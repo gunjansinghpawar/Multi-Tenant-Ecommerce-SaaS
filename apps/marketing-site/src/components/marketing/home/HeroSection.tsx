@@ -8,7 +8,7 @@ import { ArrowRight, Play, CheckCircle2 } from 'lucide-react';
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden pt-24 pb-32 md:pt-32 md:pb-40">
+    <section className="relative overflow-hidden pt-24 pb-32 md:pt-32 md:pb-40 mt-[-100px]">
       {/* Background gradients */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-info/10 blur-[100px] rounded-full pointer-events-none" />
@@ -96,7 +96,7 @@ export function HeroSection() {
                 admin.commercex.app
               </div>
             </div>
-            
+
             {/* Dashboard Mockup content */}
             <div className="flex h-[600px]">
               {/* Sidebar */}
@@ -109,14 +109,14 @@ export function HeroSection() {
                   </div>
                 ))}
               </div>
-              
+
               {/* Main Content Area */}
               <div className="flex-1 bg-muted/20 p-8 flex flex-col gap-6 overflow-hidden">
                 <div className="flex justify-between items-center">
                   <div className="h-8 w-48 bg-muted rounded-md" />
                   <div className="h-8 w-32 bg-primary/20 rounded-md" />
                 </div>
-                
+
                 {/* Stats row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {[1, 2, 3].map((i) => (
@@ -133,8 +133,8 @@ export function HeroSection() {
                   <div className="flex-1 rounded-lg border border-dashed border-border flex items-end p-4 gap-2">
                     {/* Fake Bar Chart */}
                     {Array.from({ length: 20 }).map((_, i) => (
-                      <div 
-                        key={i} 
+                      <div
+                        key={i}
                         className="flex-1 bg-primary/30 rounded-t-sm"
                         style={{ height: `${Math.random() * 80 + 20}%` }}
                       />
@@ -144,9 +144,9 @@ export function HeroSection() {
               </div>
             </div>
           </div>
-          
+
           {/* Floating UI Elements for depth */}
-          <motion.div 
+          <motion.div
             animate={{ y: [0, -10, 0] }}
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
             className="absolute -right-12 top-32 w-64 bg-background border border-border shadow-dialog rounded-xl p-4 hidden lg:block"
