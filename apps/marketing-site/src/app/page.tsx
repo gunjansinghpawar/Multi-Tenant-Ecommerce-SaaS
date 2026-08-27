@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { HeroSection } from '@/components/marketing/home/HeroSection';
 import { ValueProposition } from '@/components/marketing/home/ValueProposition';
 import { StoreCreationFlow } from '@/components/marketing/home/StoreCreationFlow';
@@ -15,14 +16,10 @@ import { ArchitectureGraph } from '@/components/home/ArchitectureGraph';
 
 export const dynamic = 'force-static';
 
-import type { Metadata } from 'next';
-
 export const metadata: Metadata = {
-  title: 'CommerceX — The Complete Multi-Tenant Ecommerce OS',
-  description: 'Create, launch, manage, market, analyze, and scale an entire ecommerce business from one platform.',
-  alternates: {
-    canonical: '/',
-  },
+  title: 'CommerceX — Commerce infrastructure for ambitious brands',
+  description: 'Build, operate, market, and scale multi-tenant ecommerce from one connected platform.',
+  alternates: { canonical: '/' },
 };
 
 const softwareSchema = {
@@ -31,20 +28,13 @@ const softwareSchema = {
   name: 'CommerceX',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Any',
-  offers: {
-    '@type': 'Offer',
-    price: '0',
-    priceCurrency: 'USD',
-  },
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
 };
 
 export default function MarketingHomePage() {
   return (
-    <div className="flex flex-col w-full h-full">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
-      />
+    <div className="flex min-h-full w-full flex-col">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }} />
       <HeroSection />
       <ValueProposition />
       <StoreCreationFlow />
