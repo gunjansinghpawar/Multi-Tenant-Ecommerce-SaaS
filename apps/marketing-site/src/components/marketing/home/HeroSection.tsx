@@ -1,166 +1,129 @@
 'use client';
 
-import React from 'react';
 import { motion } from 'framer-motion';
-import { Button } from '@commercex/ui';
 import Link from 'next/link';
-import { ArrowRight, Play, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Check, Play, ShoppingBag, Sparkles, TrendingUp } from 'lucide-react';
+import { Button } from '@commercex/ui';
+
+const metrics = [
+  ['Revenue', '$84,290', '+24.8%'],
+  ['Orders', '1,284', '+18.2%'],
+  ['Conversion', '4.82%', '+0.9%'],
+];
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden pt-24 pb-32 md:pt-32 md:pb-40 mt-[-100px]">
-      {/* Background gradients */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-info/10 blur-[100px] rounded-full pointer-events-none" />
+    <section className="relative overflow-hidden border-b border-border pt-28 sm:pt-32 lg:pt-36">
+      <div className="absolute inset-0 marketing-grid pointer-events-none opacity-60" />
+      <div className="absolute left-1/2 top-0 h-[620px] w-[900px] -translate-x-1/2 rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
 
-      <div className="container mx-auto px-4 md:px-6 relative z-10">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20"
-          >
-            <span className="flex h-2 w-2 rounded-full bg-primary" />
-            CommerceX Platform 2.0 is now live
+      <div className="marketing-container relative">
+        <div className="mx-auto max-w-4xl text-center">
+          <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .45 }}>
+            <span className="eyebrow"><Sparkles className="h-3.5 w-3.5" /> CommerceX 2.0</span>
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-5xl md:text-7xl font-extrabold tracking-tight text-foreground leading-[1.1]"
+            transition={{ duration: .55, delay: .08 }}
+            className="mt-7 text-5xl font-semibold leading-[0.98] tracking-[-0.055em] sm:text-6xl lg:text-8xl"
           >
-            Build your entire <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-info">ecommerce business</span>
-            <br className="hidden md:block" /> from one platform.
+            The operating system for <span className="text-primary">modern commerce.</span>
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
+            transition={{ duration: .55, delay: .16 }}
+            className="mx-auto mt-7 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg"
           >
-            Create your store, manage products, sell everywhere, automate customer communication, analyze performance, and scale — all from one connected ecosystem.
+            Launch storefronts, manage products and orders, automate growth, and understand every customer—from one connected multi-tenant platform.
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
+            transition={{ duration: .55, delay: .24 }}
+            className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
           >
             <Link href="/register">
-              <Button size="lg" className="rounded-full px-8 h-14 text-base shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all group">
-                Start Building Free
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              <Button size="lg" className="h-12 rounded-full px-7 shadow-xl shadow-primary/20">
+                Start for free <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
-            <Link href="/platform">
-              <Button size="lg" variant="outline" className="rounded-full px-8 h-14 text-base group">
-                <Play className="mr-2 h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                Explore Platform
+            <Link href="/demo">
+              <Button size="lg" variant="outline" className="h-12 rounded-full px-7 bg-background/70">
+                <Play className="mr-2 h-4 w-4" /> See CommerceX in action
               </Button>
             </Link>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-            className="flex items-center justify-center gap-6 text-sm text-muted-foreground pt-8"
-          >
-            <div className="flex items-center gap-1.5"><CheckCircle2 size={16} className="text-success" /> No credit card required</div>
-            <div className="flex items-center gap-1.5"><CheckCircle2 size={16} className="text-success" /> 14-day free trial</div>
-            <div className="flex items-center gap-1.5"><CheckCircle2 size={16} className="text-success" /> Cancel anytime</div>
-          </motion.div>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+            {['No credit card', '14-day trial', 'Cancel anytime'].map((item) => (
+              <span key={item} className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-500" />{item}</span>
+            ))}
+          </div>
         </div>
 
-        {/* Product UI Visualization */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-          className="mt-20 mx-auto max-w-6xl relative"
+          transition={{ duration: .7, delay: .3 }}
+          className="relative mx-auto mt-16 max-w-6xl pb-20 sm:mt-20"
         >
-          <div className="rounded-2xl border border-border bg-card/50 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col">
-            {/* Fake Browser Header */}
-            <div className="h-12 border-b border-border bg-muted/50 flex items-center px-4 gap-2">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-destructive/80" />
-                <div className="w-3 h-3 rounded-full bg-warning/80" />
-                <div className="w-3 h-3 rounded-full bg-success/80" />
-              </div>
-              <div className="mx-auto w-1/2 h-6 bg-background rounded-md border border-border flex items-center justify-center text-xs text-muted-foreground font-mono">
-                admin.commercex.app
-              </div>
+          <div className="overflow-hidden rounded-[22px] border border-border bg-card shadow-[0_30px_90px_-35px_hsl(var(--primary)/.35)]">
+            <div className="flex h-12 items-center justify-between border-b border-border bg-muted/40 px-4">
+              <div className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-red-400/80" /><span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" /><span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" /></div>
+              <div className="hidden rounded-md border border-border bg-background px-4 py-1 text-[10px] text-muted-foreground sm:block">app.commercex.com / overview</div>
+              <div className="w-12" />
             </div>
 
-            {/* Dashboard Mockup content */}
-            <div className="flex h-[600px]">
-              {/* Sidebar */}
-              <div className="w-64 border-r border-border bg-background p-4 hidden md:flex flex-col gap-4">
-                <div className="h-8 w-32 bg-muted rounded-md mb-4" />
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="h-5 w-5 bg-muted rounded-md" />
-                    <div className="h-4 w-24 bg-muted rounded-md" />
-                  </div>
-                ))}
-              </div>
+            <div className="grid min-h-[460px] grid-cols-[180px_1fr]">
+              <aside className="hidden border-r border-border bg-muted/20 p-4 sm:block">
+                <div className="mb-8 flex items-center gap-2 text-sm font-semibold"><ShoppingBag className="h-4 w-4 text-primary" /> CommerceX</div>
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  {['Overview', 'Orders', 'Products', 'Customers', 'Marketing', 'Analytics'].map((item, i) => (
+                    <div key={item} className={`rounded-lg px-3 py-2 ${i === 0 ? 'bg-primary/10 font-medium text-primary' : ''}`}>{item}</div>
+                  ))}
+                </div>
+              </aside>
 
-              {/* Main Content Area */}
-              <div className="flex-1 bg-muted/20 p-8 flex flex-col gap-6 overflow-hidden">
-                <div className="flex justify-between items-center">
-                  <div className="h-8 w-48 bg-muted rounded-md" />
-                  <div className="h-8 w-32 bg-primary/20 rounded-md" />
+              <div className="bg-background p-5 sm:p-7">
+                <div className="flex items-end justify-between gap-4">
+                  <div><p className="text-xs text-muted-foreground">Good morning, Alex</p><h2 className="mt-1 text-xl font-semibold tracking-tight sm:text-2xl">Store overview</h2></div>
+                  <span className="hidden rounded-lg border border-border px-3 py-2 text-xs text-muted-foreground sm:block">Last 30 days</span>
                 </div>
 
-                {/* Stats row */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="bg-background border border-border p-5 rounded-xl shadow-sm space-y-3">
-                      <div className="h-4 w-24 bg-muted rounded-md" />
-                      <div className="h-8 w-32 bg-foreground/10 rounded-md" />
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  {metrics.map(([label, value, change]) => (
+                    <div key={label} className="rounded-xl border border-border bg-card p-4">
+                      <p className="text-xs text-muted-foreground">{label}</p>
+                      <div className="mt-2 flex items-end justify-between gap-2"><p className="text-xl font-semibold">{value}</p><span className="text-[11px] font-medium text-emerald-600">{change}</span></div>
                     </div>
                   ))}
                 </div>
 
-                {/* Chart Area */}
-                <div className="flex-1 bg-background border border-border rounded-xl shadow-sm p-5 flex flex-col gap-4">
-                  <div className="h-5 w-32 bg-muted rounded-md" />
-                  <div className="flex-1 rounded-lg border border-dashed border-border flex items-end p-4 gap-2">
-                    {/* Fake Bar Chart */}
-                    {Array.from({ length: 20 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="flex-1 bg-primary/30 rounded-t-sm"
-                        style={{ height: `${Math.random() * 80 + 20}%` }}
-                      />
-                    ))}
+                <div className="mt-4 grid gap-4 lg:grid-cols-[1.6fr_1fr]">
+                  <div className="rounded-xl border border-border p-4">
+                    <div className="flex items-center justify-between"><p className="text-sm font-medium">Revenue</p><TrendingUp className="h-4 w-4 text-emerald-500" /></div>
+                    <div className="mt-6 flex h-40 items-end gap-2">
+                      {[32,45,38,60,52,68,58,76,64,82,74,92,84,98].map((height, i) => <div key={i} className="flex-1 rounded-t-md bg-primary/15" style={{ height: `${height}%` }}><div className="h-full rounded-t-md bg-primary/70" style={{ width: i % 3 === 0 ? '100%' : '70%' }} /></div>)}
+                    </div>
+                  </div>
+                  <div className="rounded-xl border border-border p-4">
+                    <p className="text-sm font-medium">Recent activity</p>
+                    <div className="mt-5 space-y-4 text-xs">
+                      {['Order #4092 paid', 'New customer joined', 'Campaign reached 12k'].map((item, i) => <div key={item} className="flex gap-3"><span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-primary" /><div><p className="font-medium">{item}</p><p className="mt-1 text-muted-foreground">{i + 2} min ago</p></div></div>)}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Floating UI Elements for depth */}
-          <motion.div
-            animate={{ y: [0, -10, 0] }}
-            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-            className="absolute -right-12 top-32 w-64 bg-background border border-border shadow-dialog rounded-xl p-4 hidden lg:block"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center text-success"><CheckCircle2 size={16} /></div>
-              <div>
-                <div className="text-sm font-medium">Order #4092 Paid</div>
-                <div className="text-xs text-muted-foreground">Just now</div>
-              </div>
-            </div>
-            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-success w-full" />
-            </div>
+          <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} className="absolute -right-3 top-28 hidden w-56 rounded-2xl border border-border bg-card p-4 shadow-2xl lg:block">
+            <div className="flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600"><Check className="h-4 w-4" /></span><div><p className="text-xs font-semibold">Payment received</p><p className="mt-0.5 text-[11px] text-muted-foreground">Order #4092 · $248.00</p></div></div>
           </motion.div>
         </motion.div>
       </div>
